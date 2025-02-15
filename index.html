@@ -6,7 +6,7 @@
     <title>Attendance Tracker - Home</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body onload="storeDataInSession()">
     <header class="header">
         <h1 class="title">Welcome to Attendance Tracker</h1>
         <p class="subtitle">Effortless attendance management for your classes.</p>
@@ -18,6 +18,24 @@
         <p>&copy; 2025 Attendance Tracker. All rights reserved.</p>
     </footer>
     <script>
+        function storeDataInSession() {
+            const students = [
+                {"firstName":"vengababu","lastName":"Madala","admissionNo":"121","phone":"9381118398","email":"vengababu@gmail.com","address":"dwbejb","year":"1","department":"CSE","section":"A","rollNumber":"1kb13001","password":"venga"},
+                {"firstName":"suresh","lastName":"Kumar","admissionNo":"122","phone":"9876543210","email":"suresh@gmail.com","address":"hyderabad","year":"2","department":"CSE","section":"B","rollNumber":"2kb13002","password":"suresh123"},
+                {"firstName":"raj","lastName":"Sharma","admissionNo":"123","phone":"9876543201","email":"rajsharma@gmail.com","address":"mumbai","year":"3","department":"IT","section":"A","rollNumber":"3kb13003","password":"rajpass"}
+            ];
+
+            const teacherData = [
+                {"firstName":"admin","lastName":"admin","department":"CSE","username":"admin","password":"admin"},
+                {"firstName":"pradeep","lastName":"Rao","department":"IT","username":"pradeeprao","password":"pradeep@123"},
+                {"firstName":"suman","lastName":"Sharma","department":"ECE","username":"suman_sharma","password":"suman@456"}
+            ];
+
+            // Store separately in session storage
+            sessionStorage.setItem("students", JSON.stringify(students));
+            sessionStorage.setItem("teacherData", JSON.stringify(teacherData));
+        }
+
         function navigateToLogin() {
             window.location.href = "login.html";
         }
