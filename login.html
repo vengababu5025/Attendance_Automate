@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .toggle-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .toggle-buttons button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 0 5px;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-buttons button.active {
+            background: #0056b3;
+        }
+
+        .form-step {
+            display: none;
+        }
+
+        .form-step.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="login-body">
+    <div class="login-container">
+        <div class="toggle-buttons">
+            <button id="studentLoginBtn" class="active">Student Login</button>
+            <button id="teacherLoginBtn">Teacher Login</button>
+        </div>
+
+        <!-- Student Login Form -->
+        <form id="studentLoginForm" class="form-step active" onsubmit="handleStudentLogin(event)">
+            <h1>Student Login</h1>
+            <div class="form-group">
+                <input type="text" id="studentUserId" placeholder="Student User Name" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="studentPassword" placeholder="Password" required>
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" id="studentRememberMe">
+                <label for="studentRememberMe">Remember Me</label>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <!-- Teacher Login Form -->
+        <form id="teacherLoginForm" class="form-step" onsubmit="handleTeacherLogin(event)">
+            <h1>Teacher Login</h1>
+            <div class="form-group">
+                <input type="text" id="teacherUserId" placeholder="Teacher User Name" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="teacherPassword" placeholder="Password" required>
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" id="teacherRememberMe">
+                <label for="teacherRememberMe">Remember Me</label>
+            </div>
+            <button type="submit" class="login-btn">Login</button>
+        </form>
+
+        <!-- Sign Up Button as Hyperlink -->
+        <a href="Registration.html" class="signup-btn">Sign Up</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const studentLoginBtn = document.getElementById('studentLoginBtn');
+            const teacherLoginBtn = document.getElementById('teacherLoginBtn');
+            const studentLoginForm = document.getElementById('studentLoginForm');
+            const teacherLoginForm = document.getElementById('teacherLoginForm');
+
+            // Toggle between Student and Teacher login forms
+            studentLoginBtn.addEventListener('click', () => {
+                studentLoginForm.classList.add('active');
+                teacherLoginForm.classList.remove('active');
+                studentLoginBtn.classList.add('active');
+                teacherLoginBtn.classList.remove('active');
+            });
+
+            teacherLoginBtn.addEventListener('click', () => {
+                teacherLoginForm.classList.add('active');
+                studentLoginForm.classList.remove('active');
+                teacherLoginBtn.classList.add('active');
+                studentLoginBtn.classList.remove('active');
+            });
+
+            // Check if there's a remembered user for student login
+            const rememberedStudent = localStorage.getItem('rememberedStudent');
+            if (rememberedStudent) {
+                document.getElementById('studentUserId').value = rememberedStudent;
+                document.getElementById('studentRememberMe').checked = true;
+            }
+
+            // Check if there's a remembered user for teacher login
+            const rememberedTeacher = localStorage.getItem('rememberedTeacher');
+            if (rememberedTeacher) {
+                document.getElementById('teacherUserId').value = rememberedTeacher;
+                document.getElementById('teacherRememberMe').checked = true;
+            }
+        });
+
+        // Handle Student Login
+        async function handleStudentLogin(event) {
+            event.preventDefault();
+            const userId = document.getElementById('studentUserId').value;
+            const password = document.getElementById('studentPassword').value;
+            const rememberMe = document.getElementById('studentRememberMe').checked;
+
+            if (rememberMe) {
+                localStorage.setItem('rememberedStudent', userId);
+            } else {
+                localStorage.removeItem('rememberedStudent');
+            }
+
+            const user = await checkStudentCredentials(userId, password);
+            
+            if (user) {
+                console.log("login sucess");
+                sessionStorage.setItem('loggedInUser', JSON.stringify(user.firstName));
+                sessionStorage.setItem('RollNumber', JSON.stringify(user.rollNumber));
+                sessionStorage.setItem('userType', 'student');
+                window.location.href = 'StuDash.html';
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        // Handle Teacher Login
+        async function handleTeacherLogin(event) {
+            event.preventDefault();
+            const userId = document.getElementById('teacherUserId').value;
+            const password = document.getElementById('teacherPassword').value;
+            const rememberMe = document.getElementById('teacherRememberMe').checked;
+
+            if (rememberMe) {
+                localStorage.setItem('rememberedTeacher', userId);
+            } else {
+                localStorage.removeItem('rememberedTeacher');
+            }
+
+            const user = await checkTeacherCredentials(userId, password);
+            
+            if (user) {
+                sessionStorage.setItem('loggedInUser', JSON.stringify(user.firstName));
+                sessionStorage.setItem('userType', 'faculty');
+                window.location.href = 'FacDash.html';
+            } else {
+                alert('Invalid credentials!');
+            }
+        }
+
+        // Check Student Credentials
+        async function checkStudentCredentials(username, password) {
+            const students = JSON.parse(sessionStorage.getItem('students')) || [];
+            console.log(username);
+            console.log(password);
+           // let isvalid=students.find(student=>student.admissionNo)
+            return students.find(student => 
+                student.rollNumber === username && 
+                student.password === password
+            ) || null;
+        }
+
+        // Check Teacher Credentials
+        async function checkTeacherCredentials(username, password) {
+            const teachers = JSON.parse(sessionStorage.getItem('teacherData')) || [];
+            return teachers.find(teacher => 
+                teacher.username === username && 
+                teacher.password === password
+            ) || null;
+        }
+    </script>
+</body>
+</html>

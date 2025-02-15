@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Attendance</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Your existing CSS styles remain unchanged */
+
+        :root {
+            --primary: #1b43f3;
+            --secondary: #0d00ff;
+            --accent: #4895ef;
+            --dark: #2b2d42;
+            --light: #f8f9fa;
+            --success: #4cc9f0;
+            --danger: #ff4d6d;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: var(--light);
+            min-height: 100vh;
+        }
+
+        .menu-toggle {
+            position: fixed;
+            left: 20px;
+            top: 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--primary);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            height: 100vh;
+            left: -280px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .sidebar.open {
+            left: 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            width: 100%;
+            border-radius: 12px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar-btn i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .sidebar-btn.active {
+            background: var(--accent);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .logout-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
+
+        .content {
+            flex: 1;
+            padding: 4rem 2rem;
+            transition: margin-left 0.4s ease;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            animation: fadeIn 0.4s ease;
+        }
+
+        h2 {
+            color: var(--dark);
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            background: white;
+            color: var(--dark);
+        }
+
+        .b1 {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 1.5rem;
+        }
+
+        .b1:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .grid-item {
+            background: var(--light);
+            padding: 1rem;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .grid-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-container {
+            margin-bottom: 1.5rem;
+        }
+
+        .total-submit-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        /* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1.5rem;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--light);
+}
+
+th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.remove-btn {
+    background: var(--danger);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+    background: #ff002b;
+    transform: translateY(-2px);
+}
+    </style>
+</head>
+<body>
+    <!-- Sidebar Toggle Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div>
+                <div class="sidebar-header">
+                    <h2>Faculty Portal</h2>
+                </div>
+                <nav>
+                    <button class="sidebar-btn" onclick="window.location.href='FacDash.html'">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='generateqr.html'">
+                        <i class="fas fa-qrcode"></i>
+                        Generate QR
+                    </button>
+                    <button class="sidebar-btn" onclick="window.location.href='PostAttendance.html'">
+                        <i class="fas fa-clipboard-check"></i>
+                        Post Attendance
+                    </button>
+                </nav>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content" id="content">
+            <div class="container">
+                <h2>Post Attendance</h2>
+                <!-- Dropdowns in the same line -->
+                <div class="dropdown-container">
+                    <select id="department" onchange="filterStudents()">
+                        <option value="ALL">All Departments</option>
+                        <option value="CSE">Computer Science</option>
+                        <option value="ECE">Electronics</option>
+                        <option value="ME">Mechanical</option>
+                    </select>
+                    <select id="section" onchange="filterStudents()">
+                        <option value="ALL">All Sections</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                    <select id="year" onchange="filterStudents()">
+                        <option value="ALL">All Years</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+                <!-- Search input under dropdowns -->
+                <div class="search-container">
+                    <input type="text" id="searchInput" placeholder="Search by name or roll number..." oninput="searchStudents()">
+                </div>
+                <!-- Search results -->
+                <div id="searchResults" class="grid-container"></div>
+                <!-- Submit button -->
+                <button class="b1" onclick="submitAttendance()">Submit Attendance</button>
+                <!-- Student data table -->
+                <table id="studentTable">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Name</th>
+                            <th>Roll No</th>
+                            <th>Department</th>
+                            <th>Section</th>
+                            <th>Year</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Rows will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let studentsData = []; // Array to store all student data
+        let filteredStudents = []; // Array to store filtered students based on dropdowns
+        let searchResults = []; // Array to store search results
+
+        // Fetch student data from session storage and store it locally
+        function fetchStudentData() {
+            const students = JSON.parse(sessionStorage.getItem('students')) || [];
+            studentsData = students.map((student, index) => ({
+                sno: index + 1,
+                firstName: student.firstName || "Unknown",
+                lastName: student.lastName || "",
+                rollNumber: student.rollNumber || "N/A",
+                department: student.department || "N/A",
+                section: student.section || "N/A",
+                year: student.year || "N/A",
+            }));
+        }
+
+        // Filter students based on dropdown selections
+        function filterStudents() {
+            const department = document.getElementById('department').value;
+            const section = document.getElementById('section').value;
+            const year = document.getElementById('year').value;
+
+            // Filter students based on department, section, and year
+            filteredStudents = studentsData.filter(student => {
+                return (
+                    (department === "ALL" || student.department === department) &&
+                    (section === "ALL" || student.section === section) &&
+                    (year === "ALL" || student.year === year)
+                );
+            });
+
+            console.log(filteredStudents)
+            // Clear the search input and display the filtered students
+            document.getElementById('searchInput').value = '';
+        }
+
+        // Search students based on search term
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            // If search term is empty, show all filtered students
+            if(searchTerm!=""){
+                searchResults = filteredStudents.filter(student => {
+                const firstName = student.firstName ? student.firstName.toLowerCase() : "";
+                const lastName = student.lastName ? student.lastName.toLowerCase() : "";
+                const rollNumber = student.rollNumber ? student.rollNumber.toLowerCase() : "";
+                const fullName = `${firstName} ${lastName}`.trim();
+
+                return fullName.includes(searchTerm) || rollNumber.includes(searchTerm);
+            });
+
+            // Display the search results
+            displaySearchResults(searchResults);
+            }
+            else{
+                displaySearchResults([])
+                console.log("nulllll")
+            }
+        }
+
+        // Display students in the grid
+        function displaySearchResults(students) {
+            const searchResultsContainer = document.getElementById('searchResults');
+            searchResultsContainer.innerHTML = ''; // Clear existing results
+
+            students.forEach(student => {
+                const studentCard = document.createElement('div');
+                studentCard.className = 'grid-item';
+                studentCard.innerHTML = `
+                    <p>${student.firstName} ${student.lastName}</p>
+                    <p>${student.rollNumber}</p>
+                    <button onclick="addStudentToTable(${student.sno})">Add</button>
+                `;
+                searchResultsContainer.appendChild(studentCard);
+            });
+        }
+
+        // Add a student to the table
+        function addStudentToTable(sno) {
+            const student = filteredStudents.find(student => student.sno === sno);
+            if (student) {
+                const tableBody = document.querySelector("#studentTable tbody");
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${student.sno}</td>
+                    <td>${student.firstName} ${student.lastName}</td>
+                    <td>${student.rollNumber}</td>
+                    <td>${student.department}</td>
+                    <td>${student.section}</td>
+                    <td>${student.year}</td>
+                    <td><button class="remove-btn" onclick="removeStudent(${student.sno})">Remove</button></td>
+                `;
+                tableBody.appendChild(row);
+            }
+        }
+
+        // Remove a student from the table
+        function removeStudent(sno) {
+            const tableBody = document.querySelector("#studentTable tbody");
+            const rows = tableBody.querySelectorAll("tr");
+            
+            rows.forEach(row => {
+                const firstCell = row.querySelector("td:first-child");
+                if (firstCell && firstCell.textContent.trim() === String(sno)) {
+                    tableBody.removeChild(row);
+                }
+            });
+        }
+
+        // Function to submit attendance
+        function submitAttendance() {
+    const tableBody = document.querySelector("#studentTable tbody");
+    const rows = tableBody.querySelectorAll("tr");
+    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
+    const today = new Date().toISOString().split('T')[0]; 
+
+    let alreadyPosted = false; // Flag to check if any student's attendance is already posted
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const student = {
+            sno: cells[0].textContent.trim(),
+            name: cells[1].textContent.trim(),
+            rollNumber: cells[2].textContent.trim(),
+            department: cells[3].textContent.trim(),
+            section: cells[4].textContent.trim(),
+            year: cells[5].textContent.trim()
+        };
+
+        // Check if attendance for this student has already been posted today
+        const isAlreadyPosted = attendanceRecords.some(record => 
+            record.rollNumber === student.rollNumber && record.date === today
+        );
+
+        if (isAlreadyPosted) {
+            alreadyPosted = true; // Set the flag to true
+            alert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
+        } else {
+            // If not posted, add the attendance record
+            const attendance = {
+                date: today,
+                faculty: "Faculty Name", // Example faculty name
+                subject: "Subject Name", // Example subject name
+                hour: "1", // Example hour
+                location: "Location", // Example location
+                rollNumber: student.rollNumber,
+                name: student.name,
+                status: "Present"
+            };
+
+            attendanceRecords.push(attendance);
+        }
+    });
+
+    if (!alreadyPosted) {
+        sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+        console.log("Attendance records stored:", attendanceRecords);
+        alert("Attendance submitted successfully!");
+    }
+}
+        // Sidebar Toggle Function
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('open');
+            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+        }
+
+        // Logout Function
+        function logout() {
+            window.location.href = "login.html";
+        }
+
+        // Initialize student data on page load
+        fetchStudentData();
+        filterStudents(); // Display all students initially based on default dropdown values
+    </script>
+</body>
+</html>
