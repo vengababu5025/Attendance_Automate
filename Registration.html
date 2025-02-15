@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,36 +10,42 @@
         .form-step {
             display: none;
         }
+
         .form-step.active {
             display: block;
         }
-        
+
         select {
             width: 100%;
             padding: 0.5rem;
             border: none;
             border-radius: 5px;
-            font-size:12px;
+            font-size: 12px;
             text-align: center;
             background: rgba(255, 255, 255, 0.933);
             color: rgb(21, 138, 254);
             backdrop-filter: blur(5px);
         }
-        select:focus, input:focus, textarea:focus {
+
+        select:focus,
+        input:focus,
+        textarea:focus {
             outline: none;
             background: rgba(255, 255, 255, 0.5);
         }
-        
-        
-        .form-group-container {
-    display: flex;
-    gap: 30px; /* Adjust spacing between dropdowns */
-    justify-content: space-between;
-}
 
-.form-group-container .form-group {
-    flex: 1; /* Ensures both dropdowns take equal space */
-}
+
+        .form-group-container {
+            display: flex;
+            gap: 30px;
+            /* Adjust spacing between dropdowns */
+            justify-content: space-between;
+        }
+
+        .form-group-container .form-group {
+            flex: 1;
+            /* Ensures both dropdowns take equal space */
+        }
 
 
         .flip-container {
@@ -83,7 +90,7 @@
             margin-bottom: 20px;
         }
 
-        
+
         button {
             padding: 10px;
             margin: 10px 0;
@@ -113,16 +120,28 @@
             font-size: 1rem;
             transition: transform 0.3s ease, background 0.3s ease;
         }
-        .toggle-buttons button:hover{
-             transform: scale(1.05);  /* Slightly enlarges button */
-    background: rgba(255, 255, 255, 0.5); 
-    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3); /* Optional shadow effect */
+
+        .toggle-buttons button:hover {
+            transform: scale(1.05);
+            /* Slightly enlarges button */
+            background: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.3);
+            /* Optional shadow effect */
         }
+
         .toggle-buttons button.active {
             background: #0056b3;
         }
+        .error-message {
+    color: red;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    display: none; /* Hide by default */
+}
+        
     </style>
 </head>
+
 <body class="login-body">
     <div class="login-container" style="height: 400px;">
         <div class="toggle-buttons">
@@ -138,19 +157,33 @@
                     <form id="multiStepForm">
                         <!-- Step 1 -->
                         <div class="form-step active">
-                            <div class="form-group"><input type="text" id="firstName" placeholder="First Name" required></div>
-                            <div class="form-group"><input type="text" id="lastName" placeholder="Last Name" required></div>
-                            <div class="form-group"><input type="text" id="admissionNo" placeholder="Admission No" required></div>
-                            
+                            <div class="form-group">
+                                <input type="text" id="firstName" placeholder="First Name" required>
+                                <span class="error-message" id="firstNameError"></span>
+                            </div>
+                            <div class="form-group"><input type="text" id="lastName" placeholder="Last Name" required>
+                                <span class="error-message" id="lastNameError"></span>
+                            </div>
+                            <div class="form-group"><input type="text" id="admissionNo" placeholder="Admission No"
+                                    required>
+                                    <span class="error-message" id="admissionNoError"></span>
+                                </div>
                             <!-- <div class="form-group"><input type="text" id="Roll-No" placeholder="Roll Number"></div> -->
                             <button type="button" class="login-btn next">Next</button>
                         </div>
-        
+
                         <!-- Step 2 -->
                         <div class="form-step">
-                            <div class="form-group"><input type="tel" id="phone" placeholder="Phone Number" required></div>
-                            <div class="form-group"><input type="email" id="email" placeholder="Email ID" required></div>
-                            <div class="form-group"><textarea id="address" placeholder="Address" required></textarea></div>
+                            <div class="form-group">
+                                <input type="tel" id="phone" placeholder="Phone Number" required>
+                                <span class="error-message" id="PhoneNoError"></span>
+                            </div>
+                            <div class="form-group"><input type="email" id="email" placeholder="Email ID" required>
+                                <span class="error-message" id="EmailError"></span>
+                            </div>
+                            <div class="form-group"><textarea id="address" placeholder="Address" required></textarea>
+                                <span class="error-message" id="AddressError"></span>
+                            </div>
                             <div class="form-group-container">
                                 <div class="form-group">
                                     <select id="Year" required>
@@ -159,7 +192,9 @@
                                         <option>2</option>
                                         <option>3</option>
                                         <option>4</option>
+                                        
                                     </select>
+                                    <span class="error-message" id="YearError"></span>
                                 </div>
                                 <div class="form-group">
                                     <select id="department" required>
@@ -167,6 +202,7 @@
                                         <option>CSE</option>
                                         <option>ECE</option>
                                     </select>
+                                    <span class="error-message" id="DepartmentError"></span>
                                 </div>
                                 <div class="form-group">
                                     <select id="section" required>
@@ -174,31 +210,38 @@
                                         <option>A</option>
                                         <option>B</option>
                                     </select>
+                                    <span class="error-message" id="SectionError"></span>
                                 </div>
                             </div>
-                            
+
                             <button type="button" class="login-btn back">Back</button>
                             <button type="button" class="login-btn next">Next</button>
                         </div>
-        
+
                         <!-- Step 3 -->
                         <div class="form-step">
-                            <div class="form-group"><input type="password" id="password" placeholder="Password" required></div>
-                            <div class="form-group"><input type="password" id="confirmPassword" placeholder="Confirm Password" required></div>
+                            <div class="form-group"><input type="password" id="password" placeholder="Password"
+                                    required>
+                                    <span class="error-message" id="PasswordError"></span></div>
+                            <div class="form-group"><input type="password" id="confirmPassword"
+                                    placeholder="Confirm Password" required>
+                                    <span class="error-message" id="CPasswordError"></span></div>
                             <button type="button" class="login-btn back">Back</button>
                             <button type="submit" class="login-btn">Submit</button>
                         </div>
                     </form>
                 </div>
-        
+
                 <!-- Teacher Registration Form -->
                 <div id="teacherForm" style="display: none;">
                     <h2>Teacher Registration</h2>
                     <form id="teacherMultiStepForm">
                         <!-- Group 1: First Name, Last Name, Department -->
                         <div class="form-step active">
-                            <div class="form-group"><input type="text" id="teacherFirstName" placeholder="First Name" required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
-                            <div class="form-group"><input type="text" id="teacherLastName" placeholder="Last Name" required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
+                            <div class="form-group"><input type="text" id="teacherFirstName" placeholder="First Name"
+                                    required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
+                            <div class="form-group"><input type="text" id="teacherLastName" placeholder="Last Name"
+                                    required pattern="[A-Za-z]+" title="Only alphabets allowed"></div>
                             <div class="form-group">
                                 <select id="teacherDepartment" required>
                                     <option value="">Select Department</option>
@@ -210,12 +253,15 @@
                             </div>
                             <button type="button" class="login-btn next">Next</button>
                         </div>
-        
+
                         <!-- Group 2: Username, Password, Confirm Password -->
                         <div class="form-step">
-                            <div class="form-group"><input type="text" id="username" placeholder="Username" required pattern="[A-Za-z0-9]+" title="Only alphabets and numbers allowed"></div>
-                            <div class="form-group"><input type="password" id="teacherPassword" placeholder="Password" required></div>
-                            <div class="form-group"><input type="password" id="teacherConfirmPassword" placeholder="Confirm Password" required></div>
+                            <div class="form-group"><input type="text" id="username" placeholder="Username" required
+                                    pattern="[A-Za-z0-9]+" title="Only alphabets and numbers allowed"></div>
+                            <div class="form-group"><input type="password" id="teacherPassword" placeholder="Password"
+                                    required></div>
+                            <div class="form-group"><input type="password" id="teacherConfirmPassword"
+                                    placeholder="Confirm Password" required></div>
                             <button type="button" class="login-btn back">Back</button>
                             <button type="submit" class="login-btn">Submit</button>
                         </div>
@@ -261,17 +307,25 @@
             }
 
             function validateStudentCurrentStep() {
-                const inputs = studentSteps[studentCurrentStep].querySelectorAll("input[required], textarea[required], select[required]");
-                for (let input of inputs) {
-                    if (!input.value.trim()) {
-                        alert(`Please fill in the ${input.placeholder || input.id} field.`);
-                        input.focus();
-                        return false;
-                    }
-                }
-                return true;
+    let isValid = true;
+    const inputs = studentSteps[studentCurrentStep].querySelectorAll("input[required], textarea[required], select[required]");
+    inputs.forEach(input => {
+        const errorMessage = input.nextElementSibling; // Get the next sibling which is the error message span
+        if (errorMessage && errorMessage.classList.contains("error-message")) {
+            if (!input.value.trim()) {
+                errorMessage.textContent = `Please fill in the ${input.placeholder || input.id} field.`;
+                errorMessage.style.display = "block";
+                isValid = false;
+            } else {
+                errorMessage.textContent = "";
+                errorMessage.style.display = "none";
             }
-
+        } else {
+            console.error("Error message element not found for input:", input.id);
+        }
+    });
+    return isValid;
+}
             studentNextButtons.forEach((button) => {
                 button.addEventListener("click", () => {
                     if (validateStudentCurrentStep()) {
@@ -291,80 +345,81 @@
             });
 
             // Generate Roll Number
-// Function to generate roll number (year and department dependent)
-function generateRollNumber(year, department) {
-    const prefix = "kb"; // Hardcoded prefix
-    const departmentCodes = { CSE: "13", ECE: "14" }; // Department codes
-    const departmentCode = departmentCodes[department] || "00"; // Default to "00" if department not found
+            // Function to generate roll number (year and department dependent)
+            function generateRollNumber(year, department) {
+                const prefix = "kb"; // Hardcoded prefix
+                const departmentCodes = { CSE: "13", ECE: "14" }; // Department codes
+                const departmentCode = departmentCodes[department] || "00"; // Default to "00" if department not found
 
-    // Create a unique key for the combination of year and department
-    const rollNumberKey = `lastRollNumber_${year}_${department}`;
+                // Create a unique key for the combination of year and department
+                const rollNumberKey = `lastRollNumber_${year}_${department}`;
 
-    // Get the last roll number for the specific year and department from sessionStorage
-    const lastRollNumber = sessionStorage.getItem(rollNumberKey) || `${year}${prefix}${departmentCode}000`;
+                // Get the last roll number for the specific year and department from sessionStorage
+                const lastRollNumber = sessionStorage.getItem(rollNumberKey) || `${year}${prefix}${departmentCode}000`;
 
-    // Extract the last 3 digits (increment part) and increment it
-    const lastIncrement = parseInt(lastRollNumber.slice(-3), 10); // Extract last 3 digits
-    const newIncrement = lastIncrement + 1; // Increment by 1
-    const paddedIncrement = String(newIncrement).padStart(3, "0"); // Pad with leading zeros
+                // Extract the last 3 digits (increment part) and increment it
+                const lastIncrement = parseInt(lastRollNumber.slice(-3), 10); // Extract last 3 digits
+                const newIncrement = lastIncrement + 1; // Increment by 1
+                const paddedIncrement = String(newIncrement).padStart(3, "0"); // Pad with leading zeros
 
-    // Generate new roll number
-    const newRollNumber = `${year}${prefix}${departmentCode}${paddedIncrement}`;
+                // Generate new roll number
+                const newRollNumber = `${year}${prefix}${departmentCode}${paddedIncrement}`;
 
-    // Update sessionStorage with the new roll number for the specific year and department
-    sessionStorage.setItem(rollNumberKey, newRollNumber);
+                // Update sessionStorage with the new roll number for the specific year and department
+                sessionStorage.setItem(rollNumberKey, newRollNumber);
 
-    return newRollNumber;
-}
-studentFormElement.addEventListener("submit", function (event) {
-    event.preventDefault();
+                return newRollNumber;
+            }
+            studentFormElement.addEventListener("submit", function (event) {
+                event.preventDefault();
 
-    if (!validateStudentCurrentStep()) return;
+                if (!validateStudentCurrentStep()) return;
 
-    const password = document.getElementById("password").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
+                const password = document.getElementById("password").value;
+                const confirmPassword = document.getElementById("confirmPassword").value;
 
-    if (password !== confirmPassword) {
-        alert("Passwords do not match! Please try again.");
-        return;
-    }
+                if (password !== confirmPassword) {
+                    alert("Passwords do not match! Please try again.");
+                    return;
+                }
 
-    // Get selected year and department
-    const year = document.getElementById("Year").value;
-    const department = document.getElementById("department").value;
+                // Get selected year and department
+                const year = document.getElementById("Year").value;
+                const department = document.getElementById("department").value;
 
-    // Generate roll number based on the selected year and department
-    const rollNumber = generateRollNumber(year, department);
- //   document.getElementById("rollNumber").value = rollNumber;
+                // Generate roll number based on the selected year and department
+                const rollNumber = generateRollNumber(year, department);
+                //   document.getElementById("rollNumber").value = rollNumber;
 
-    // Collect student data
-    const studentData = {
-        firstName: document.getElementById("firstName").value,
-        lastName: document.getElementById("lastName").value,
-        admissionNo: document.getElementById("admissionNo").value,
-        phone: document.getElementById("phone").value,
-        email: document.getElementById("email").value,
-        address: document.getElementById("address").value,
-        year: year,
-        department: department,
-        section: document.getElementById("section").value,
-        rollNumber: rollNumber,
-        password: password,
-    };
+                // Collect student data
+                const studentData = {
+                    firstName: document.getElementById("firstName").value,
+                    lastName: document.getElementById("lastName").value,
+                    admissionNo: document.getElementById("admissionNo").value,
+                    phone: document.getElementById("phone").value,
+                    email: document.getElementById("email").value,
+                    address: document.getElementById("address").value,
+                    year: year,
+                    department: department,
+                    section: document.getElementById("section").value,
+                    rollNumber: rollNumber,
+                    password: password,
+                };
 
-    // Retrieve existing student records from sessionStorage
-    const existingStudents = JSON.parse(sessionStorage.getItem("students")) || [];
+                // Retrieve existing student records from sessionStorage
+                const existingStudents = JSON.parse(sessionStorage.getItem("students")) || [];
 
-    // Add the new student data to the array
-    existingStudents.push(studentData);
+                // Add the new student data to the array
+                existingStudents.push(studentData);
 
-    // Save the updated array back to sessionStorage
-    sessionStorage.setItem("students", JSON.stringify(existingStudents));
+                // Save the updated array back to sessionStorage
+                sessionStorage.setItem("students", JSON.stringify(existingStudents));
 
-    alert("Student Registration successful!");
-    studentFormElement.reset();
-    showStudentStep(0); // Reset to the first step
-});           const teacherSteps = document.querySelectorAll("#teacherMultiStepForm .form-step");
+                alert("Student Registration successful!");
+                studentFormElement.reset();
+                studentCurrentStep = 0;
+                showStudentStep(0); // Reset to the first step
+            }); const teacherSteps = document.querySelectorAll("#teacherMultiStepForm .form-step");
             const teacherNextButtons = document.querySelectorAll("#teacherMultiStepForm .next");
             const teacherBackButtons = document.querySelectorAll("#teacherMultiStepForm .back");
             const teacherFormElement = document.getElementById("teacherMultiStepForm");
@@ -430,16 +485,17 @@ studentFormElement.addEventListener("submit", function (event) {
 
                 const existingTeacher = JSON.parse(sessionStorage.getItem("teacherData")) || [];
 
-// Add the new student data to the array
-existingTeacher.push(teacherData);
+                // Add the new student data to the array
+                existingTeacher.push(teacherData);
 
-// Save the updated array back to sessionStorage
-sessionStorage.setItem("teacherData", JSON.stringify(existingTeacher));
+                // Save the updated array back to sessionStorage
+                sessionStorage.setItem("teacherData", JSON.stringify(existingTeacher));
 
 
-               
+
                 alert("Teacher Registration Successful!");
                 teacherFormElement.reset();
+                teacherCurrentStep=0;
                 showTeacherStep(0); // Reset to the first step
             });
 
@@ -449,4 +505,5 @@ sessionStorage.setItem("teacherData", JSON.stringify(existingTeacher));
         });
     </script>
 </body>
+
 </html>
