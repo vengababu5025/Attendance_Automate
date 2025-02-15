@@ -565,9 +565,14 @@ tr:hover {
     const rows = tableBody.querySelectorAll("tr");
     const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
     const today = new Date().toISOString().split('T')[0];
+    let x=rows.length;
+
 
     let alreadyPosted = false; // Flag to check if any student's attendance is already posted
-
+    if(rows.length===0){
+        alreadyPosted = true; 
+        showAlert("Please Select Atleast one student to Post Attendance");
+    }
     rows.forEach(row => {
         const cells = row.querySelectorAll("td");
         const student = {
