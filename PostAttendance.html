@@ -293,9 +293,74 @@ tr:hover {
     background: #ff002b;
     transform: translateY(-2px);
 }
+
+/* Alert Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+.alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none; /* Initially hidden */
+    animation: slideIn 0.5s ease-out;
+}
+
+.alert.success {
+    background-color: #4CAF50; /* Green for success */
+}
+
+.alert.slide-out {
+    animation: slideOut 0.5s ease-in forwards;
+}
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
     </style>
 </head>
 <body>
+
+    <div class="alert" id="customAlert" style="display: none;">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+        <strong id="alertMessage"></strong>
+    </div>
+
     <!-- Sidebar Toggle Button -->
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
@@ -495,13 +560,11 @@ tr:hover {
                 }
             });
         }
-
-        // Function to submit attendance
         function submitAttendance() {
     const tableBody = document.querySelector("#studentTable tbody");
     const rows = tableBody.querySelectorAll("tr");
     const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
-    const today = new Date().toISOString().split('T')[0]; 
+    const today = new Date().toISOString().split('T')[0];
 
     let alreadyPosted = false; // Flag to check if any student's attendance is already posted
 
@@ -523,7 +586,7 @@ tr:hover {
 
         if (isAlreadyPosted) {
             alreadyPosted = true; // Set the flag to true
-            alert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
+            showAlert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
         } else {
             // If not posted, add the attendance record
             const attendance = {
@@ -544,10 +607,37 @@ tr:hover {
     if (!alreadyPosted) {
         sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
         console.log("Attendance records stored:", attendanceRecords);
-        alert("Attendance submitted successfully!");
+        showAlert("Attendance submitted successfully!", true); // Success alert
     }
 }
-        // Sidebar Toggle Function
+        // Function to submit attendance
+        function showAlert(message, isSuccess = false) {
+    const alertElement = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+
+    // Set alert content and style
+    alertMessage.textContent = message;
+    alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
+    alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
+    alertElement.classList.remove('success'); // Remove success class if present
+
+    if (isSuccess) {
+        alertElement.classList.add('success'); // Add success class for green background
+    }
+
+    // Display the alert with slide-in animation
+    alertElement.style.display = 'block';
+    alertElement.style.animation = 'slideIn 0.5s ease-out';
+
+    // Automatically hide the alert after 5 seconds with slide-out animation
+    setTimeout(() => {
+        alertElement.classList.add('slide-out'); // Add slide-out animation
+        setTimeout(() => {
+            alertElement.style.display = 'none'; // Hide after animation completes
+        }, 500); // Wait for slide-out animation to finish
+    }, 5000); // Display for 5 seconds
+}
+// Sidebar Toggle Function
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
