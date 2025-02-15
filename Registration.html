@@ -141,11 +141,81 @@
             /* Hide by default */
         }
 
+        @keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+/* Alert Styles */
+#customAlert {
+    position: fixed;
+    top: 20px;
+    right: -100%; /* Start off-screen */
+    padding: 15px;
+    border-radius: 5px;
+    color: white;
+    font-size: 14px;
+    z-index: 1000;
+    opacity: 0;
+    transition: right 0.5s ease-out, opacity 0.5s ease-out;
+    animation: slideIn 0.5s ease-out;
+}
+
+#customAlert.success {
+    background-color: #4CAF50; /* Green for success */
+}
+
+#customAlert.error {
+    background-color: #f44336; /* Red for error */
+}
+
+#customAlert.show {
+    right: 20px; /* Slide in */
+    opacity: 1;
+}
+
+#customAlert.slide-out {
+    right: -100%; /* Slide out */
+    opacity: 0;
+}
+
+.closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    cursor: pointer;
+}
+
+.closebtn:hover {
+    color: black;
+}
         
     </style>
 </head>
 
 <body class="login-body">
+    <div class="alert" id="customAlert" style="display: none;">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+        <strong id="alertMessage"></strong>
+    </div>
     <div class="login-container" style="height: 400px;">
         <div class="toggle-buttons">
             <button id="studentBtn" class="active">Student</button>
@@ -392,7 +462,7 @@
                 const confirmPassword = document.getElementById("confirmPassword").value;
 
                 if (password !== confirmPassword) {
-                    alert("Passwords do not match! Please try again.");
+                    showAlert("Passwords do not match! Please try again.", false);
                     return;
                 }
 
@@ -428,7 +498,7 @@
                 // Save the updated array back to sessionStorage
                 sessionStorage.setItem("students", JSON.stringify(existingStudents));
 
-                alert("Student Registration successful!");
+                showAlert("Student Registration successful!", true);
                 studentFormElement.reset();
                 studentCurrentStep = 0;
                 showStudentStep(0); // Reset to the first step
@@ -479,6 +549,36 @@
     return isValid; // Return true if all fields are valid, otherwise false
 }
 
+
+
+// Function to show alert
+function showAlert(message, isSuccess = false) {
+    const alertElement = document.getElementById('customAlert');
+    const alertMessage = document.getElementById('alertMessage');
+
+    // Set alert content and style
+    alertMessage.textContent = message;
+    alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
+    alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
+    alertElement.classList.remove('success'); // Remove success class if present
+
+    if (isSuccess) {
+        alertElement.classList.add('success'); // Add success class for green background
+    }
+
+    // Display the alert with slide-in animation
+    alertElement.style.display = 'block';
+    alertElement.classList.add('show');
+
+    // Automatically hide the alert after 5 seconds with slide-out animation
+    setTimeout(() => {
+        alertElement.classList.add('slide-out'); // Add slide-out animation
+        setTimeout(() => {
+            alertElement.style.display = 'none'; // Hide after animation completes
+        }, 500); // Wait for slide-out animation to finish
+    }, 5000); // Display for 5 seconds
+}
+
             teacherNextButtons.forEach((button) => {
                 button.addEventListener("click", () => {
                     if (validateTeacherCurrentStep()) {
@@ -506,7 +606,7 @@
                 const confirmPassword = document.getElementById("teacherConfirmPassword").value;
 
                 if (password !== confirmPassword) {
-                    alert("Passwords do not match! Please try again.");
+                    showAlert("Passwords do not match! Please try again.", false);
                     return;
                 }
 
@@ -529,7 +629,7 @@
 
 
 
-                alert("Teacher Registration Successful!");
+                showAlert("Student Registration successful!", true);
                 teacherFormElement.reset();
                 teacherCurrentStep = 0;
                 showTeacherStep(0); // Reset to the first step
