@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -163,7 +164,8 @@
             font-weight: 500;
         }
 
-        select, input {
+        select,
+        input {
             width: 100%;
             padding: 0.8rem;
             border: 2px solid var(--primary);
@@ -232,8 +234,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .dropdown-container {
@@ -252,112 +261,120 @@
             align-items: center;
             margin-bottom: 1.5rem;
         }
+
         /* Table styles */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1.5rem;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        }
 
-th, td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--light);
-}
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light);
+        }
 
-th {
-    background: var(--primary);
-    color: white;
-    font-weight: 600;
-}
+        th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
 
-tr:hover {
-    background: rgba(0, 0, 0, 0.05);
-}
+        tr:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
 
-.remove-btn {
-    background: var(--danger);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
+        .remove-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
 
-.remove-btn:hover {
-    background: #ff002b;
-    transform: translateY(-2px);
-}
+        .remove-btn:hover {
+            background: #ff002b;
+            transform: translateY(-2px);
+        }
 
-/* Alert Animation */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+        /* Alert Animation */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
 
-@keyframes slideOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-}
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-.alert {
-    padding: 20px;
-    background-color: #f44336;
-    color: white;
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: none; /* Initially hidden */
-    animation: slideIn ease-out;
-}
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
 
-.alert.success {
-    background-color: #4CAF50; /* Green for success */
-}
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
 
-.alert.slide-out {
-    animation: slideOut ease-in forwards;
-}
-.closebtn {
-  margin-left: 15px;
-  color: white;
-  font-weight: bold;
-  float: right;
-  font-size: 22px;
-  line-height: 20px;
-  cursor: pointer;
-  transition: 0.3s;
-}
+        .alert {
+            padding: 20px;
+            background-color: #f44336;
+            color: white;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            /* Initially hidden */
+            animation: slideIn ease-out;
+        }
 
-.closebtn:hover {
-  color: black;
-}
+        .alert.success {
+            background-color: #4CAF50;
+            /* Green for success */
+        }
+
+        .alert.slide-out {
+            animation: slideOut ease-in forwards;
+        }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            font-size: 22px;
+            line-height: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
     </style>
 </head>
+
 <body>
 
     <div class="alert" id="customAlert" style="display: none;">
-        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
         <strong id="alertMessage"></strong>
     </div>
 
@@ -422,12 +439,13 @@ tr:hover {
                 </div>
                 <!-- Search input under dropdowns -->
                 <div class="search-container">
-                    <input type="text" id="searchInput" placeholder="Search by name or roll number..." oninput="searchStudents()">
+                    <input type="text" id="searchInput" placeholder="Search by name or roll number..."
+                        oninput="searchStudents()">
                 </div>
                 <!-- Search results -->
                 <div id="searchResults" class="grid-container"></div>
                 <!-- Submit button -->
-                <button class="b1" onclick="submitAttendance()">Submit Attendance</button>
+                <button class="b1" onclick="validateAndSubmitAttendance()">Submit Attendance</button>
                 <!-- Student data table -->
                 <table id="studentTable">
                     <thead>
@@ -493,20 +511,20 @@ tr:hover {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             // If search term is empty, show all filtered students
-            if(searchTerm!=""){
+            if (searchTerm != "") {
                 searchResults = filteredStudents.filter(student => {
-                const firstName = student.firstName ? student.firstName.toLowerCase() : "";
-                const lastName = student.lastName ? student.lastName.toLowerCase() : "";
-                const rollNumber = student.rollNumber ? student.rollNumber.toLowerCase() : "";
-                const fullName = `${firstName} ${lastName}`.trim();
+                    const firstName = student.firstName ? student.firstName.toLowerCase() : "";
+                    const lastName = student.lastName ? student.lastName.toLowerCase() : "";
+                    const rollNumber = student.rollNumber ? student.rollNumber.toLowerCase() : "";
+                    const fullName = `${firstName} ${lastName}`.trim();
 
-                return fullName.includes(searchTerm) || rollNumber.includes(searchTerm);
-            });
+                    return fullName.includes(searchTerm) || rollNumber.includes(searchTerm);
+                });
 
-            // Display the search results
-            displaySearchResults(searchResults);
+                // Display the search results
+                displaySearchResults(searchResults);
             }
-            else{
+            else {
                 displaySearchResults([])
                 console.log("nulllll")
             }
@@ -552,7 +570,7 @@ tr:hover {
         function removeStudent(sno) {
             const tableBody = document.querySelector("#studentTable tbody");
             const rows = tableBody.querySelectorAll("tr");
-            
+
             rows.forEach(row => {
                 const firstCell = row.querySelector("td:first-child");
                 if (firstCell && firstCell.textContent.trim() === String(sno)) {
@@ -560,89 +578,150 @@ tr:hover {
                 }
             });
         }
-        function submitAttendance() {
-    const tableBody = document.querySelector("#studentTable tbody");
-    const rows = tableBody.querySelectorAll("tr");
-    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
-    const today = new Date().toISOString().split('T')[0];
-    let x=rows.length;
 
 
-    let alreadyPosted = false; // Flag to check if any student's attendance is already posted
-    if(rows.length===0){
-        alreadyPosted = true; 
-        showAlert("Please Select Atleast one student to Post Attendance");
-    }
-    rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        const student = {
-            sno: cells[0].textContent.trim(),
-            name: cells[1].textContent.trim(),
-            rollNumber: cells[2].textContent.trim(),
-            department: cells[3].textContent.trim(),
-            section: cells[4].textContent.trim(),
-            year: cells[5].textContent.trim()
-        };
+        // Validate QR Code before submitting attendance
+        function validateAndSubmitAttendance() {
+            const qrData = sessionStorage.getItem("qrData");
 
-        // Check if attendance for this student has already been posted today
-        const isAlreadyPosted = attendanceRecords.some(record => 
-            record.rollNumber === student.rollNumber && record.date === today
-        );
+            if (!qrData) {
+                showAlert("Please generate a QR code before posting attendance.");
+                return;
+            }
 
-        if (isAlreadyPosted) {
-            alreadyPosted = true; // Set the flag to true
-            showAlert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
-        } else {
-            // If not posted, add the attendance record
-            const attendance = {
-                date: today,
-                faculty: "Faculty Name", // Example faculty name
-                subject: "Subject Name", // Example subject name
-                hour: "1", // Example hour
-                location: "Location", // Example location
-                rollNumber: student.rollNumber,
-                name: student.name,
-                status: "Present"
-            };
+            try {
+                // Parse the QR data
+                const parsedData = JSON.parse(qrData);
 
-            attendanceRecords.push(attendance);
+                // Get current timestamp
+                const currentTime = Date.now();
+
+                // Validate expiration time
+                if (parsedData.expires && currentTime > parsedData.expires) {
+                    showAlert("QR code has expired. Please generate a new one.");
+                    return;
+                }
+
+                // If QR code is valid, proceed to submit attendance
+                submitAttendance(parsedData.data);
+
+            } catch (error) {
+                console.log(error);
+                showAlert(`Invalid QR data. Please regenerate the QR code.${error}`);
+            }
         }
-    });
 
-    if (!alreadyPosted) {
-        sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-        console.log("Attendance records stored:", attendanceRecords);
-        showAlert("Attendance submitted successfully!", true); // Success alert
+
+        function submitAttendance(qrData) {
+    try {
+        // Parse the custom format into an object
+        const parsedData = {};
+        // Split by newline and then by spaces
+        qrData.split('\n').forEach(line => {
+            // Split by colon to separate key and value
+            const [key, value] = line.split(':').map(item => item.trim());
+            if (key && value) {
+                parsedData[key] = value;
+            }
+        });
+        console.log("Parsed QR Data:", parsedData);
+        
+        const tableBody = document.querySelector("#studentTable tbody");
+        const rows = tableBody.querySelectorAll("tr");
+        const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
+        const today = new Date().toISOString().split('T')[0];
+        let alreadyPosted = false; // Flag to check if any student's attendance is already posted
+
+        if (rows.length === 0) {
+            alreadyPosted = true;
+            showAlert("Please Select At least one student to Post Attendance");
+        }
+
+        rows.forEach(row => {
+            const cells = row.querySelectorAll("td");
+            const student = {
+                sno: cells[0].textContent.trim(),
+                name: cells[1].textContent.trim(),
+                rollNumber: cells[2].textContent.trim(),
+                department: cells[3].textContent.trim(),
+                section: cells[4].textContent.trim(),
+                year: cells[5].textContent.trim()
+            };
+            const qrDate = new Date(parsedData['D']).toISOString().split('T')[0];
+            // Check if attendance for this student has already been posted today
+            const isAlreadyPosted = attendanceRecords.some(record =>
+                record.rollNumber === student.rollNumber 
+                && record.date === qrDate
+                && record.subject===parsedData['S']
+                && record.hour===parsedData['H']
+                && record.status==="Present"
+            );
+
+            if (isAlreadyPosted) {
+                alreadyPosted = true; // Set the flag to true
+                showAlert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
+            } else {
+                // If not posted, add the attendance record
+                
+                const subject = parsedData['S'];
+                const hour = parsedData['H'];
+                const recordIndex = attendanceRecords.findIndex(record =>
+            record.date === qrDate &&
+            record.rollNumber === student.rollNumber &&
+            record.subject === subject &&
+            record.hour === hour &&
+            record.status==="Absent"
+        );
+                if(recordIndex!==-1){
+                    attendanceRecords[recordIndex].status = "Present";
+                console.log("Updated attendance record:", attendanceRecords[recordIndex]);
+             // Save the updated attendance records back to session storage
+                 sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+                }
+                else {
+            // If no matching record is found, show an error
+            showAlert(`No attendance record found for ${rollNumber} on ${qrDate} for ${subject} (Hour ${hour}).`);
+        }
+            }
+        });
+
+        if (!alreadyPosted) {
+            sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+            console.log("Attendance records stored:", attendanceRecords);
+            showAlert("Attendance submitted successfully!", true); // Success alert
+        }
+    } catch (error) {
+        console.error("Error submitting attendance:", error);
+        showAlert("An error occurred while submitting attendance. Please try again.");
     }
-}
-        // Function to submit attendance
+}    // Function to submit attendance
         function showAlert(message, isSuccess = false) {
-    const alertElement = document.getElementById('customAlert');
-    const alertMessage = document.getElementById('alertMessage');
+            const alertElement = document.getElementById('customAlert');
+            const alertMessage = document.getElementById('alertMessage');
 
-    // Set alert content and style
-    alertMessage.textContent = message;
-    alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
-    alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
-    alertElement.classList.remove('success'); // Remove success class if present
+            // Set alert content and style
+            alertMessage.textContent = message;
+            alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
+            alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
+            alertElement.classList.remove('success'); // Remove success class if present
 
-    if (isSuccess) {
-        alertElement.classList.add('success'); // Add success class for green background
-    }
+            if (isSuccess) {
+                alertElement.classList.add('success'); // Add success class for green background
+            }
 
-    // Display the alert with slide-in animation
-    alertElement.style.display = 'block';
-    alertElement.style.animation = 'slideIn 0.5s ease-out';
+            // Display the alert with slide-in animation
+            alertElement.style.display = 'block';
+            alertElement.style.animation = 'slideIn 0.5s ease-out';
 
-    // Automatically hide the alert after 5 seconds with slide-out animation
-    setTimeout(() => {
-        alertElement.classList.add('slide-out'); // Add slide-out animation
-        setTimeout(() => {
-            alertElement.style.display = 'none'; // Hide after animation completes
-        }, 500); // Wait for slide-out animation to finish
-    }, 5000); // Display for 5 seconds
-}
-// Sidebar Toggle Function
+            // Automatically hide the alert after 5 seconds with slide-out animation
+            setTimeout(() => {
+                alertElement.classList.add('slide-out'); // Add slide-out animation
+                setTimeout(() => {
+                    alertElement.style.display = 'none'; // Hide after animation completes
+                }, 500); // Wait for slide-out animation to finish
+            }, 5000); // Display for 5 seconds
+        }
+        // Sidebar Toggle Function
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
@@ -660,4 +739,5 @@ tr:hover {
         filterStudents(); // Display all students initially based on default dropdown values
     </script>
 </body>
+
 </html>

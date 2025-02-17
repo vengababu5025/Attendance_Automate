@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -59,7 +60,7 @@
 
         .sidebar {
             width: 280px;
-            background:var(--primary);
+            background: var(--primary);
             padding: 2rem 1.5rem;
             position: fixed;
             height: 100vh;
@@ -149,7 +150,7 @@
             animation: fadeIn 0.4s ease;
         }
 
-        h1{
+        h1 {
             color: black;
             margin-bottom: 1.5rem;
             font-size: 2rem;
@@ -170,7 +171,8 @@
             font-weight: 500;
         }
 
-        select, input {
+        select,
+        input {
             width: 100%;
             padding: 0.8rem;
             border: 2px solid var(--primary);
@@ -249,24 +251,31 @@
         }
 
         .b1:hover {
-        background: var(--secondary);
-        transform: translateY(-2px);
+            background: var(--secondary);
+            transform: translateY(-2px);
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         @media (max-width: 768px) {
             .sidebar {
                 width: 250px;
             }
-            
+
             .content {
                 padding: 2rem 1rem;
             }
-            
+
             .section {
                 padding: 1.5rem;
             }
@@ -275,128 +284,133 @@
                 width: 45px;
                 height: 45px;
             }
-            
+
             .sidebar-btn {
                 padding: 1.2rem;
             }
         }
+
         .tooltip-container {
-        position: relative;
-        display: inline-block;
-    }
+            position: relative;
+            display: inline-block;
+        }
 
-    .tooltip-container .tooltip {
-        visibility: hidden;
-        width: 120px;
-        background-color: black;
-        color: #fff;
-        text-align: center;
-        padding: 5px;
-        border-radius: 5px;
-        position: absolute;
-        top: -15px; /* Position above the button */
-        left: 700%;
-        transform: translateX(-50%);
-        white-space: nowrap;
-        font-size: 12px;
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
+        .tooltip-container .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 5px;
+            border-radius: 5px;
+            position: absolute;
+            top: -15px;
+            /* Position above the button */
+            left: 700%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+            font-size: 12px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-    .tooltip-container:hover .tooltip {
-        visibility: visible;
-        opacity: 1;
-    }
+        .tooltip-container:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
 
-    /* Modal Styles */
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 1001;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0, 0, 0, 0.5);
-}
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
 
-.modal-content {
-    background: white;
-    margin: 10% auto;
-    padding: 2rem;
-    border-radius: 12px;
-    width: 50%;
-    max-width: 600px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.3s ease;
-}
+        .modal-content {
+            background: white;
+            margin: 10% auto;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 50%;
+            max-width: 600px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.3s ease;
+        }
 
-.close {
-    color: var(--dark);
-    float: right;
-    font-size: 1.5rem;
-    font-weight: bold;
-    cursor: pointer;
-}
+        .close {
+            color: var(--dark);
+            float: right;
+            font-size: 1.5rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-.close:hover {
-    color: var(--danger);
-}
+        .close:hover {
+            color: var(--danger);
+        }
 
-.dropdown-container {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
+        .dropdown-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
 
-.dropdown-container label {
-    margin-bottom: 0;
-}
+        .dropdown-container label {
+            margin-bottom: 0;
+        }
 
-/* Grid Styles */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr); /* 10 columns */
-    gap: 0.5rem;
-    margin-top: 1.5rem;
-}
+        /* Grid Styles */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            /* 10 columns */
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
 
 
 
 
-.grid-item label {
-    cursor: pointer;
-}
+        .grid-item label {
+            cursor: pointer;
+        }
 
-/* Add these styles to the existing CSS */
-.grid-item {
-    background: var(--light);
-    padding: 0.5rem;
-    text-align: center;
-    border-radius: 8px;
-    border: 1px solid var(--primary);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    position: relative;
-}
+        /* Add these styles to the existing CSS */
+        .grid-item {
+            background: var(--light);
+            padding: 0.5rem;
+            text-align: center;
+            border-radius: 8px;
+            border: 1px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
 
-.grid-item input[type="checkbox"] {
-    display: none; /* Hide the actual checkbox */
-}
+        .grid-item input[type="checkbox"] {
+            display: none;
+            /* Hide the actual checkbox */
+        }
 
-.grid-item.selected {
-    background: var(--success);
-    color: white;
-    border-color: var(--success);
-}
+        .grid-item.selected {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
 
-.grid-item:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+        .grid-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
+
 <body>
     <!-- Sidebar Toggle Button -->
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
@@ -435,12 +449,12 @@
         <main class="content" id="content">
             <div class="container">
                 <!-- Replace the modal-related code with a link to the new page -->
-<div class="tooltip-container">
-    <a href="PostAttendance.html" class="b1" style="width:fit-content;margin-left:550%;height:10px;">
-        <i class="fas fa-clipboard-check" style="font-size:20px;"></i>
-    </a>
-    <span class="tooltip">Post Attendance</span>
-</div>
+                <div class="tooltip-container">
+                    <a href="PostAttendance.html" class="b1" style="width:fit-content;margin-left:550%;height:10px;">
+                        <i class="fas fa-clipboard-check" style="font-size:20px;"></i>
+                    </a>
+                    <span class="tooltip">Post Attendance</span>
+                </div>
                 <h1>QR Code Generator</h1>
 
                 <label for="date">Select Date:</label>
@@ -467,50 +481,50 @@
                     <option value="3">3</option>
                 </select>
 
-                <button class= "b1" onclick="getLocation()">
+                <button class="b1" onclick="getLocation()">
                     <i class="fas fa-location-dot"></i>
                     Use Current Location
                 </button>
                 <p id="location"></p>
-                
+
                 <button class="b1" onclick="generateQR()">
                     <i class="fas fa-qrcode"></i>
                     Generate QR Code
                 </button>
-                
+
                 <div id="qrcode"></div>
             </div>
         </main>
 
         <!-- Modal Structure -->
-<!-- Modal Structure -->
-<div id="attendanceModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <h2>Post Attendance</h2>
-        <div class="dropdown-container">
-            <label for="department">Department:</label>
-            <select id="department">
-                <option value="CSE">Computer Science</option>
-                <option value="ECE">Electronics</option>
-                <option value="ME">Mechanical</option>
-            </select>
-            <label for="section">Section:</label>
-            <select id="section">
-                <option value="A">A</option>
-                <option value="B">B</option>
-                <option value="C">C</option>
-            </select>
+        <!-- Modal Structure -->
+        <div id="attendanceModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <h2>Post Attendance</h2>
+                <div class="dropdown-container">
+                    <label for="department">Department:</label>
+                    <select id="department">
+                        <option value="CSE">Computer Science</option>
+                        <option value="ECE">Electronics</option>
+                        <option value="ME">Mechanical</option>
+                    </select>
+                    <label for="section">Section:</label>
+                    <select id="section">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                    </select>
+                </div>
+                <button class="b1" onclick="submitAttendance()">Submit</button>
+                <div id="rollNumberGrid" class="grid-container"></div>
+            </div>
         </div>
-        <button class="b1" onclick="submitAttendance()">Submit</button>
-        <div id="rollNumberGrid" class="grid-container"></div>  
-    </div>
-</div>
     </div>
 
     <script>
         let rollNumbersList = [];
-    
+
         // Sidebar Toggle Function
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -518,19 +532,19 @@
             sidebar.classList.toggle('open');
             overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
         }
-    
+
         // Logout Function
         function logout() {
             window.location.href = "login.html";
         }
-    
+
         // QR Code Logic
         let latitude = "";
         let longitude = "";
-    
+
         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
+                navigator.geolocation.getCurrentPosition(function (position) {
                     latitude = position.coords.latitude;
                     longitude = position.coords.longitude;
                     document.getElementById("location").innerText = `Location: ${latitude}, ${longitude}`;
@@ -539,19 +553,21 @@
                 alert("Geolocation is not supported by this browser.");
             }
         }
-    
+
         function generateQR() {
+            // Retrieve the input values
             let date = document.getElementById("date").value;
             let faculty = document.getElementById("faculty").value;
             let subject = document.getElementById("subject").value;
             let hour = document.getElementById("hour").value;
-    
+            let location = `${latitude}, ${longitude}`;
+
             // Generate QR data without roll numbers
-            let qrData = `D: ${date}\nF: ${faculty}\nS: ${subject}\nH: ${hour}\nL: ${latitude}, ${longitude}`;
-    
+            let qrData = `D: ${date}\nF: ${faculty}\nS: ${subject}\nH: ${hour}\nL: ${location}`;
+
             // Clear the existing QR code
             document.getElementById("qrcode").innerHTML = "";
-    
+
             // Generate the new QR code
             new QRCode(document.getElementById("qrcode"), {
                 text: qrData,
@@ -559,64 +575,91 @@
                 height: 256,
                 version: 10 // Specify a higher version if needed
             });
+
+            // Retrieve the list of students from session storage
+            let students = JSON.parse(sessionStorage.getItem("students")) || [];
+
+            // Create a new attendance record for each student with the status "Absent"
+            let newAttendanceRecords = students.map(student => ({
+                date: date,
+                faculty: faculty,
+                subject: subject,
+                hour: hour,
+                location: location,
+                rollNumber: student.rollNumber,
+                name: `${student.firstName} ${student.lastName}`,
+                status: "Absent" // Default status is "Absent"
+            }));
+
+            // Retrieve the existing attendance records from session storage
+            let attendanceRecords = JSON.parse(sessionStorage.getItem("attendanceRecords")) || [];
+
+            // Append the new attendance records to the existing ones
+            attendanceRecords = attendanceRecords.concat(newAttendanceRecords);
+
+            // Update the attendance records in session storage
+            sessionStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
+
+            // Set the expiration time for the QR code data (1 hour from now)
+            const expirationTime = Date.now() + 60 * 60 * 1000; // 1 hour from now
+            sessionStorage.setItem("qrData", JSON.stringify({ data: qrData, expires: expirationTime }));
         }
-    
         // Function to open the modal
         function openModal() {
             document.getElementById('attendanceModal').style.display = 'block';
         }
-    
+
         // Function to close the modal
         function closeModal() {
             document.getElementById('attendanceModal').style.display = 'none';
         }
-    
+
         // Function to submit attendance and display roll numbers
         function submitAttendance() {
             const department = document.getElementById('department').value;
             const section = document.getElementById('section').value;
             const year = document.getElementById('year').value; // Assuming you have a year dropdown
-    
+
             // Fetch student data from session storage
             const students = JSON.parse(sessionStorage.getItem('students')) || [];
-    
+
             // Filter students based on department, year, and section
-            const filteredStudents = students.filter(student => 
-                student.department === department && 
-                student.section === section && 
+            const filteredStudents = students.filter(student =>
+                student.department === department &&
+                student.section === section &&
                 student.year === year
             );
-    
+
             const gridContainer = document.getElementById('rollNumberGrid');
             gridContainer.innerHTML = '';
-    
+
             filteredStudents.forEach(student => {
                 const formattedRollNumber = student.rollNumber;
                 rollNumbersList.push(formattedRollNumber);
                 const gridItem = document.createElement('div');
                 gridItem.className = 'grid-item';
                 gridItem.textContent = formattedRollNumber;
-    
+
                 // Create hidden checkbox
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `roll-${formattedRollNumber}`;
                 checkbox.value = formattedRollNumber;
                 checkbox.style.display = 'none';
-    
+
                 // Add click handler
-                gridItem.addEventListener('click', function() {
+                gridItem.addEventListener('click', function () {
                     checkbox.checked = !checkbox.checked;
                     this.classList.toggle('selected', checkbox.checked);
                 });
-    
+
                 gridItem.appendChild(checkbox);
                 gridContainer.appendChild(gridItem);
             });
         }
-    
+
         // Add year dropdown to the modal content
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const modalContent = document.querySelector('.modal-content');
             const yearDropdown = document.createElement('div');
             yearDropdown.innerHTML = `
@@ -632,4 +675,5 @@
         });
     </script>
 </body>
+
 </html>

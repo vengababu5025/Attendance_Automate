@@ -402,6 +402,56 @@
                 transform: translateY(0);
             }
         }
+
+
+        .filters {
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-btn {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
+
+.summary-container {
+    display: flex;
+    gap: 2rem;
+}
+
+.overall-summary, .subject-summary {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.subject-summary table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.subject-summary th, .subject-summary td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid var(--light);
+}
+
+.subject-summary th {
+    background: var(--primary);
+    color: white;
+}
     </style>
 </head>
 
@@ -424,9 +474,9 @@
                         <i class="fas fa-camera"></i>
                         Scan QR Code
                     </button>
-                    <button class="sidebar-btn" onclick="window.location.href='attRec.html'">
-                        <i class="fas fa-clipboard-list"></i>
-                        View Attendance
+                    <button class="sidebar-btn" onclick="openSection('attendanceSummary')">
+                        <i class="fas fa-chart-bar"></i>
+                        Attendance Summary
                     </button>
                 </nav>
             </div>
@@ -452,6 +502,33 @@
                     <div id="attendanceResult" class="attendance-success"></div>
                 </div>
             </section>
+            <section id="attendanceSummary" class="section" style="display: none;">
+                <h2>Attendance Summary</h2>
+                <div class="filters">
+                    <button class="filter-btn" onclick="filterAttendance('daily')">Daily</button>
+                    <button class="filter-btn" onclick="filterAttendance('weekly')">Weekly</button>
+                    <button class="filter-btn" onclick="filterAttendance('monthly')">Monthly</button>
+                </div>
+                <div class="summary-container">
+                    <div class="overall-summary">
+                        <h3>Overall Attendance</h3>
+                        <p id="overallPercentage"></p>
+                    </div>
+                    <div class="subject-summary">
+                        <h3>Subject-wise Attendance</h3>
+                        <table id="subjectTable">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <div id="successModal" class="modal">
@@ -465,29 +542,33 @@
     <script>
         // Sidebar and Section Navigation
         function openSection(sectionId) {
-            // Stop scanner when leaving scan section
-            if (sectionId !== 'scanQR' && scannerActive) {
-                stopScanner();
-            }
-    
-            // Hide all sections
-            document.querySelectorAll('.section').forEach(section => {
-                section.style.display = 'none';
-            });
-            document.getElementById(sectionId).style.display = 'block';
-    
-            // Start scanner when entering scan section
-            if (sectionId === 'scanQR') {
-                startScanner();
-            }
-    
-            // Update active button in the sidebar
-            document.querySelectorAll('.sidebar-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            //event.currentTarget.classList.add('active');
-        }
-    
+    // Stop scanner when leaving scan section
+    if (sectionId !== 'scanQR' && scannerActive) {
+        stopScanner();
+    }
+
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(section => {
+        section.style.display = 'none';
+    });
+    document.getElementById(sectionId).style.display = 'block';
+
+    // Start scanner when entering scan section
+    if (sectionId === 'scanQR') {
+        startScanner();
+    }
+
+    // Display attendance summary when entering the section
+    if (sectionId === 'attendanceSummary') {
+        displayAttendanceSummary('daily');
+    }
+
+    // Update active button in the sidebar
+    document.querySelectorAll('.sidebar-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    //event.currentTarget.classList.add('active');
+}
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
@@ -667,39 +748,39 @@
     
         // Function to mark attendance
         function markAttendance(student, qrData) {
-            const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
-            console.log(attendanceRecords);
-            console.log(student);
-            const today = new Date().toISOString().split('T')[0]; 
-            const qrDate = new Date(qrData['D']).toISOString().split('T')[0];
-            const attendance = {
-                date: qrDate,
-                faculty: qrData['F'],
-                subject: qrData['S'],
-                hour: qrData['H'],
-                location: qrData['L'],
-                rollNumber: student.rollNumber,
-                name: student.name,
-                status: "Present"
-            };
-            const isAlreadyPosted = attendanceRecords.some(record => 
-                record.rollNumber === student.rollNumber &&
-                record.date === today
-            );
-            if (isAlreadyPosted) {
-                attendanceAlreadyPosted = true; // Set the flag to true
-                showAttendanceResult(`Attendance for ${student.firstname} (${student.rollNumber}) has already been posted today.`, false);
-               // stopScanner(); // Stop the scanner
-                return;
+    try {
+        console.log("QR Data:", qrData);
+
+        const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
+        const qrDate = new Date(qrData.D).toISOString().split('T')[0];
+        const { S: subject, H: hour } = qrData;
+
+        const recordIndex = attendanceRecords.findIndex(record => 
+            record.date === qrDate &&
+            record.rollNumber === student.rollNumber &&
+            record.subject === subject &&
+            record.hour === hour
+        );
+
+        if (recordIndex !== -1) {
+            if (attendanceRecords[recordIndex].status === "Present") {
+                showAttendanceResult(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`, false);
             } else {
-                attendanceRecords.push(attendance);
+                attendanceRecords[recordIndex].status = "Present";
                 sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-                console.log("Attendance marked:", attendance);
-                showAttendanceResult("Attendance posted successfully!", true);
-                stopScanner(); // Stop the scanner after successful attendance
+                console.log("Updated attendance record:", attendanceRecords[recordIndex]);
+                showAttendanceResult(`Attendance for ${student.name} (${student.rollNumber}) marked as Present.`, true);
             }
+        } else {
+            showAttendanceResult(`No attendance record found for ${student.name} (${student.rollNumber}) on ${qrDate} for ${subject} (Hour ${hour}).`, false);
         }
-    
+
+        stopScanner();
+    } catch (error) {
+        console.error("Error marking attendance:", error);
+        showAttendanceResult("An error occurred while marking attendance. Please try again.", false);
+    }
+}
         // Function to display attendance result
         function showAttendanceResult(message, isSuccess) {
             const resultElement = document.getElementById("attendanceResult");
@@ -745,6 +826,92 @@
                 window.location.href = 'index.html';
             }
         });
+
+
+
+// Function to calculate and display attendance summary
+function displayAttendanceSummary(filter = 'daily') {
+    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
+    const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
+    const filteredRecords = filterAttendanceRecords(attendanceRecords, loggedInRollNumber, filter);
+
+    // Calculate overall attendance percentage
+    const totalClasses = filteredRecords.length;
+    const presentClasses = filteredRecords.filter(record => record.status === 'Present').length;
+    const overallPercentage = totalClasses > 0 ? ((presentClasses / totalClasses) * 100).toFixed(2) : 0;
+
+    // Display overall percentage
+    document.getElementById('overallPercentage').innerText = `${overallPercentage}%`;
+
+    // Calculate subject-wise attendance percentage
+    const subjectMap = new Map();
+    filteredRecords.forEach(record => {
+        if (!subjectMap.has(record.subject)) {
+            subjectMap.set(record.subject, { total: 0, present: 0 });
+        }
+        subjectMap.get(record.subject).total += 1;
+        if (record.status === 'Present') {
+            subjectMap.get(record.subject).present += 1;
+        }
+    });
+
+    // Display subject-wise percentage
+    const subjectTableBody = document.querySelector('#subjectTable tbody');
+    subjectTableBody.innerHTML = '';
+    subjectMap.forEach((value, key) => {
+        const percentage = ((value.present / value.total) * 100).toFixed(2);
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${key}</td>
+            <td>${percentage}%</td>
+        `;
+        subjectTableBody.appendChild(row);
+    });
+}
+
+// Function to filter attendance records based on the selected filter
+function filterAttendanceRecords(records, rollNumber, filter) {
+    const today = new Date().toISOString().split('T')[0];
+    const currentWeek = getWeekNumber(new Date());
+    const currentMonth = new Date().getMonth() + 1;
+
+    return records.filter(record => {
+        if (record.rollNumber !== rollNumber) return false;
+
+        const recordDate = new Date(record.date);
+        const recordWeek = getWeekNumber(recordDate);
+        const recordMonth = recordDate.getMonth() + 1;
+
+        switch (filter) {
+            case 'daily':
+                return record.date === today;
+            case 'weekly':
+                return recordWeek === currentWeek && recordDate.getFullYear() === new Date().getFullYear();
+            case 'monthly':
+                return recordMonth === currentMonth && recordDate.getFullYear() === new Date().getFullYear();
+            default:
+                return true;
+        }
+    });
+}
+
+// Helper function to get the week number of a date
+function getWeekNumber(date) {
+    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
+    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
+    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
+}
+
+// Function to handle filter button clicks
+function filterAttendance(filter) {
+    displayAttendanceSummary(filter);
+}
+
+// Call the function to display the summary when the page loads
+document.addEventListener("DOMContentLoaded", function () {
+    displayAttendanceSummary('daily');
+});
+
     </script>
     <script src="https://unpkg.com/jsqr"></script>
 
