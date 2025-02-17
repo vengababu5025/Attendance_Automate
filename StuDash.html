@@ -402,15 +402,7 @@
                 transform: translateY(0);
             }
         }
-
-
-        .filters {
-    margin-bottom: 1.5rem;
-    display: flex;
-    gap: 1rem;
-}
-
-.filter-btn {
+        .filter-btn {
     background: var(--primary);
     color: white;
     border: none;
@@ -424,10 +416,17 @@
     background: var(--secondary);
     transform: translateY(-2px);
 }
+        .summary-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    align-items: flex-start;
+}
 
 .summary-container {
     display: flex;
     gap: 2rem;
+    flex-wrap: wrap;
 }
 
 .overall-summary, .subject-summary {
@@ -452,6 +451,16 @@
     background: var(--primary);
     color: white;
 }
+
+.chart-container {
+    height: 250px;
+    width: 350px;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
     </style>
 </head>
 
@@ -504,30 +513,44 @@
             </section>
             <section id="attendanceSummary" class="section" style="display: none;">
                 <h2>Attendance Summary</h2>
-                <div class="filters">
-                    <button class="filter-btn" onclick="filterAttendance('daily')">Daily</button>
-                    <button class="filter-btn" onclick="filterAttendance('weekly')">Weekly</button>
-                    <button class="filter-btn" onclick="filterAttendance('monthly')">Monthly</button>
-                </div>
-                <div class="summary-container">
-                    <div class="overall-summary">
-                        <h3>Overall Attendance</h3>
-                        <p id="overallPercentage"></p>
-                    </div>
-                    <div class="subject-summary">
-                        <h3>Subject-wise Attendance</h3>
-                        <table id="subjectTable">
-                            <thead>
-                                <tr>
-                                    <th>Subject</th>
-                                    <th>Percentage</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+<div class="filters">
+    <button class="filter-btn" onclick="filterAttendance('daily')">Daily</button>
+    <button class="filter-btn" onclick="filterAttendance('weekly')">Weekly</button>
+    <button class="filter-btn" onclick="filterAttendance('monthly')">Monthly</button>
+</div>
+
+<div class="summary-wrapper">
+    <div class="summary-container">
+        <div class="overall-summary">
+            <h3>Overall Attendance</h3>
+            <p id="overallPercentage"></p>
+        </div>
+        <div class="subject-summary">
+            <h3>Subject-wise Attendance</h3>
+            <table id="subjectTable">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h3>Overall Attendance</h3>
+        <canvas id="overallAttendanceChart"></canvas>
+    </div>
+    
+    <div class="chart-container">
+        <h3>Subject-wise Attendance</h3>
+        <canvas id="subjectWiseAttendanceChart"></canvas>
+    </div>
+</div>
+
             </section>
         </main>
 
@@ -841,7 +864,7 @@ function displayAttendanceSummary(filter = 'daily') {
     const overallPercentage = totalClasses > 0 ? ((presentClasses / totalClasses) * 100).toFixed(2) : 0;
 
     // Display overall percentage
-    document.getElementById('overallPercentage').innerText = `${overallPercentage}%`;
+    document.getElementById('overallPercentage').innerText = `${overallPercentage}% (${presentClasses}/${totalClasses})`;
 
     // Calculate subject-wise attendance percentage
     const subjectMap = new Map();
@@ -863,9 +886,94 @@ function displayAttendanceSummary(filter = 'daily') {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${key}</td>
-            <td>${percentage}%</td>
+            <td>${percentage}% (${value.present}/${value.total})</td>
         `;
         subjectTableBody.appendChild(row);
+    });
+
+    const subjects = Array.from(subjectMap.keys());
+    const subjectPercentages = subjects.map(subject => {
+        const { total, present } = subjectMap.get(subject);
+        return ((present / total) * 100).toFixed(2);
+    });
+
+    // Render overall attendance chart (bar chart)
+    renderOverallAttendanceChart(overallPercentage);
+
+    // Render subject-wise attendance chart (pie chart)
+    renderSubjectWiseAttendanceChart(subjects, subjectPercentages);
+}
+
+
+function renderOverallAttendanceChart(overallPercentage) {
+    const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Overall Attendance'],
+            datasets: [{
+                label: 'Attendance Percentage',
+                data: [overallPercentage],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            }
+        }
+    });
+}
+
+// Function to render the subject-wise attendance chart
+function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
+    const ctx = document.getElementById('subjectWiseAttendanceChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: 'Attendance Percentage',
+                data: subjectPercentages,
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(153, 102, 255, 1)',
+                    'rgba(255, 159, 64, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 
@@ -914,7 +1022,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     </script>
     <script src="https://unpkg.com/jsqr"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 
 </html>
