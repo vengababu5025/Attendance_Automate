@@ -478,6 +478,8 @@
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden; /* Ensure the pseudo-element doesn't overflow */
 }
 
 .card:hover {
@@ -485,20 +487,49 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
+/* Change text and icon color to white when hovering */
+.card:hover i,
+.card:hover h3,
+.card:hover p {
+    color: white;
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%; /* Start off-screen */
+    width: 100%;
+    height: 100%;
+    background: var(--primary); /* Use your desired hover color */
+    transition: all 0.5s ease;
+    z-index: 1;
+}
+
+.card:hover::before {
+    left: 0; /* Slide in on hover */
+}
+
 .card i {
     font-size: 2.5rem;
     color: var(--primary);
     margin-bottom: 1rem;
+    position: relative;
+    z-index: 2; /* Ensure icons are above the overlay */
 }
 
 .card h3 {
     color: var(--dark);
     margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2; /* Ensure text is above the overlay */
 }
 
 .card p {
     color: #6c757d;
     font-size: 0.9rem;
+    position: relative;
+    z-index: 2; /* Ensure text is above the overlay */
 }
 
 @media (max-width: 768px) {
@@ -506,6 +537,7 @@
         flex: 1 1 100%;
     }
 }
+
 .home-btn {
     position: relative;
     display: inline-block;
