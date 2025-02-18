@@ -898,7 +898,7 @@
         const qrDate = new Date(qrData.D).toISOString().split('T')[0];
         const { S: subject, H: hour } = qrData;
 
-        const recordIndex = attendanceRecords.findIndex(record => 
+        const recordIndex = attendanceRecords.  findIndex(record => 
             record.date === qrDate &&
             record.rollNumber === student.rollNumber &&
             record.subject === subject &&
@@ -907,15 +907,15 @@
 
         if (recordIndex !== -1) {
             if (attendanceRecords[recordIndex].status === "Present") {
-                showAttendanceResult(`Attendance for ${student.firstname} (${student.rollNumber}) has already been posted today.`, false);
+                showAttendanceResult(`Attendance for ${student.firstName} (${student.rollNumber}) has already been posted today.`, false);
             } else {
                 attendanceRecords[recordIndex].status = "Present";
                 sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
                 console.log("Updated attendance record:", attendanceRecords[recordIndex]);
-                showAttendanceResult(`Attendance for ${student.name} (${student.rollNumber}) marked as Present.`, true);
+                showAttendanceResult(`Attendance for ${student.firstName} (${student.rollNumber}) marked as Present.`, true);
             }
         } else {
-            showAttendanceResult(`No attendance record found for ${student.name} (${student.rollNumber}) on ${qrDate} for ${subject} (Hour ${hour}).`, false);
+            showAttendanceResult(`No attendance record found for ${student.firstName} (${student.rollNumber}) on ${qrDate} for ${subject} (Hour ${hour}).`, false);
         }
 
         stopScanner();
