@@ -195,6 +195,50 @@
                 padding: 1.2rem;
             }
         }
+        .cards-container {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-top: 2rem;
+}
+
+        .card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    flex: 1 1 calc(33.333% - 2rem);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card i {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+}
+
+.card h3 {
+    color: var(--dark);
+    margin-bottom: 0.5rem;
+}
+
+.card p {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .card {
+        flex: 1 1 100%;
+    }
+}
     </style>
 </head>
 <body>
@@ -232,7 +276,25 @@
             <section id="welcome" class="section">
                 <h1 id="welcomeMessage"></h1>
                 <p>Manage your academic activities efficiently through this portal.</p>
+                <div class="cards-container">
+                    <div class="card" onclick="openSection('welcome')">
+                        <i class="fas fa-home"></i>
+                        <h3>Dashboard</h3>
+                        <p>View your overall progress and activities.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='generateqr.html'">
+                        <i class="fas fa-camera"></i>
+                        <h3>QR Scan</h3>
+                        <p>Scan QR codes to mark your attendance.</p>
+                    </div>
+                    <div class="card" onclick="window.location.href='PostAttendance.html'">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>View Summary</h3>
+                        <p>Check your attendance summary and reports.</p>
+                    </div>
+                </div>
             </section>
+
         </main>
     </div>
 

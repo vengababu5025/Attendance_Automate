@@ -48,7 +48,7 @@
         <form id="studentLoginForm" class="form-step active" onsubmit="handleStudentLogin(event)">
             <h1>Student Login</h1>
             <div class="form-group">
-                <input type="text" id="studentUserId" placeholder="Student User Name" required>
+                <input type="text" id="studentUserId" placeholder="Student Admission No" required>
             </div>
             <div class="form-group">
                 <input type="password" id="studentPassword" placeholder="Password" required>
@@ -168,13 +168,13 @@
         }
 
         // Check Student Credentials
-        async function checkStudentCredentials(username, password) {
+        async function checkStudentCredentials(ADNMO, password) {
             const students = JSON.parse(sessionStorage.getItem('students')) || [];
-            console.log(username);
+            console.log(ADNMO);
             console.log(password);
            // let isvalid=students.find(student=>student.admissionNo)
             return students.find(student => 
-                student.rollNumber === username && 
+                student.admissionNo === ADNMO && 
                 student.password === password
             ) || null;
         }

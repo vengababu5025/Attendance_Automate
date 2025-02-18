@@ -368,6 +368,79 @@
         .closebtn:hover {
             color: black;
         }
+        .home-btn {
+    position: relative;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 20px; /* Optional: Add some space from the right edge */
+}
+
+.home-btn .tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position the tooltip above the button */
+    left: 50%;
+    margin-left: -60px; /* Center the tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.home-btn .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.home-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+.smb-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: left;
+  display: block;
+  margin-left: 75%;  /* Ensures the button starts from the left */
+  margin-top: 20px;
+}
+
+.smb-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #003580); /* Darker gradient on hover */
+  transform: scale(1.05);
+  box-shadow: 3px 5px 8px rgba(0, 0, 0, 0.3);
+}
+
+.smb-btn:active {
+  transform: scale(0.98);
+  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+}
+
     </style>
 </head>
 
@@ -413,7 +486,14 @@
 
         <!-- Main Content -->
         <main class="content" id="content">
+
             <div class="container">
+                <div style="text-align: right;">
+                    <button class="home-btn" onclick="window.location.href='FacDash.html'">
+                        <i class="fas fa-home"></i> Home
+                        <span class="tooltip">Go to Home</span>
+                    </button>
+                </div>
                 <h2>Post Attendance</h2>
                 <!-- Dropdowns in the same line -->
                 <div class="dropdown-container">
@@ -445,7 +525,6 @@
                 <!-- Search results -->
                 <div id="searchResults" class="grid-container"></div>
                 <!-- Submit button -->
-                <button class="b1" onclick="validateAndSubmitAttendance()">Submit Attendance</button>
                 <!-- Student data table -->
                 <table id="studentTable">
                     <thead>
@@ -463,6 +542,7 @@
                         <!-- Rows will be dynamically inserted here -->
                     </tbody>
                 </table>
+                <button class="smb-btn" onclick="validateAndSubmitAttendance()">Submit Attendance</button>
             </div>
         </main>
     </div>
