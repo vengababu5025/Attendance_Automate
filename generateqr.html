@@ -460,6 +460,10 @@
                         <i class="fas fa-clipboard-check"></i>
                         Post Attendance
                     </button>
+                    <button class="sidebar-btn" onclick="window.location.href='QrCode.html'">
+                        <i class="fas fa-qrcode"></i>
+                        QR Code
+                    </button>
                 </nav>
             </div>
             <button class="logout-btn" onclick="logout()">
@@ -601,13 +605,21 @@
             document.getElementById("qrcode").innerHTML = "";
 
             // Generate the new QR code
-            new QRCode(document.getElementById("qrcode"), {
+            let qrcodedata=new QRCode(document.getElementById("qrcode"), {
                 text: qrData,
                 width: 256,
                 height: 256,
                 version: 10 // Specify a higher version if needed
             });
+            console.log(qrcodedata);
+            setTimeout(() => {
+        // Get the QR code image as base64 (from the canvas element)
+        let qrImage = document.querySelector("#qrcode img").src; // Get the image's src attribute (base64 string)
 
+        // Store the base64 image in a variable or sessionStorage
+        sessionStorage.setItem("qrImage", qrImage);  // Or store it in a variable
+        console.log(qrImage);  // Check the base64 QR code in the console
+    }, 100); 
             // Retrieve the list of students from session storage
             let students = JSON.parse(sessionStorage.getItem("students")) || [];
 
