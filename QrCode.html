@@ -8,10 +8,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <style>
-        /* Copy the same styles from the previous page */
         :root {
             --primary: #1b43f3;
-            --secondary: #0d00ff;
+            --secondary: #190dfa;
             --accent: #4895ef;
             --dark: #2b2d42;
             --light: #f8f9fa;
@@ -131,7 +130,17 @@
             background: #ff002b;
             transform: translateY(-2px);
         }
-
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(3px);
+            z-index: 998;
+            display: none;
+        }
         .content {
             flex: 1;
             padding: 4rem 2rem;
@@ -163,7 +172,9 @@
             font-size: 2rem;
             text-align: center;
         }
-
+        .imgContainer{
+            margin-left: 25%;
+        }
         #countdown {
             font-size: 1.5rem;
             text-align: center;
@@ -209,6 +220,57 @@
                 padding: 1.2rem;
             }
         }
+        .button-container {
+    display: flex;
+    justify-content: space-between; /* This will place one button on the left and one on the right */
+    align-items: center; /* Vertically center the buttons */
+    width: 100%; /* Ensure the container takes the full width */
+}
+
+.home-btn {
+    position: relative;
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.home-btn .tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%; /* Position the tooltip above the button */
+    left: 50%;
+    margin-left: -60px; /* Center the tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.home-btn .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%; /* At the bottom of the tooltip */
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.home-btn:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+}
     </style>
 </head>
 
@@ -216,7 +278,6 @@
     <!-- Sidebar Toggle Button -->
     <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
     <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
-
     <!-- Dashboard Container -->
     <div class="dashboard-container">
         <!-- Sidebar -->
@@ -253,10 +314,25 @@
         <!-- Main Content -->
         <main class="content" id="content">
             <div class="container">
+                <div class="button-container">
+                    <div class="tooltip-container">
+                        <a href="generateqr.html" class="home-btn">
+                            <i class="fas fa-qrcode"></i>
+                            <span class="tooltip">Generate QrCode</span>
+                        </a>
+                    </div>
+                    <div class="tooltip-container">
+                        <button class="home-btn" onclick="window.location.href='FacDash.html'">
+                            <i class="fas fa-home"></i> Home
+                            <span class="tooltip">Go to Home</span>
+                        </button>
+                    </div>
+                </div>
                 <h1>QR Code</h1>
-                <div id="qrImageContainer">
+                <div id="qrImageContainer" class="imgContainer">
                     <!-- QR Code Image will be displayed here -->
                 </div>
+                <h2 id="msgCoontainer"></h2>
                 <div id="countdown"></div>
                 <div id="expiredMessage">This QR code is no longer valid.</div>
             </div>
@@ -266,45 +342,47 @@
     <script>
         // Sidebar Toggle Function
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('overlay');
-            sidebar.classList.toggle('open');
-            overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
-        }
-
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    sidebar.classList.toggle('open');
+    overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+}
         // Logout Function
         function logout() {
             window.location.href = "login.html";
         }
 
         // Display QR Code and Start Countdown
-        document.addEventListener('DOMContentLoaded', function () {
-            const qrImage = sessionStorage.getItem('qrImage');
-            const qrData = JSON.parse(sessionStorage.getItem('qrData'));
+// Display QR Code and Start Countdown
+document.addEventListener('DOMContentLoaded', function () {
+    const qrImage = sessionStorage.getItem('qrImage');
+    const qrData = JSON.parse(sessionStorage.getItem('qrData'));
 
-            if (qrImage && qrData) {
-                // Display the QR code image
-                const qrImageContainer = document.getElementById('qrImageContainer');
-                qrImageContainer.innerHTML = `<img src="${qrImage}" alt="QR Code" style="max-width: 100%;">`;
+    const qrImageContainer = document.getElementById('qrImageContainer');
+    const msgContainer = document.getElementById('msgCoontainer');
 
-                // Calculate the remaining time
-                const expirationTime = qrData.expires;
-                const currentTime = Date.now();
-                const remainingTime = expirationTime - currentTime;
+    if (qrImage && qrData) {
+        // Display the QR code image
+        qrImageContainer.innerHTML = `<img src="${qrImage}" alt="QR Code" style="max-width: 100%;">`;
 
-                if (remainingTime > 0) {
-                    // Start the countdown
-                    startCountdown(remainingTime);
-                } else {
-                    // Display expired message
-                    document.getElementById('countdown').style.display = 'none';
-                    document.getElementById('expiredMessage').style.display = 'block';
-                }
-            } else {
-                // Redirect to the QR generation page if no data is found
-                window.location.href = 'generateqr.html';
-            }
-        });
+        // Calculate the remaining time
+        const expirationTime = qrData.expires;
+        const currentTime = Date.now();
+        const remainingTime = expirationTime - currentTime;
+
+        if (remainingTime > 0) {
+            // Start the countdown
+            startCountdown(remainingTime);
+        } else {
+            // Display expired message
+            document.getElementById('countdown').style.display = 'none';
+            document.getElementById('expiredMessage').style.display = 'block';
+        }
+    } else {
+        // Display message in place of QR code image
+        qrImageContainer.innerHTML = `<h2 style="color: red; text-align: center;">No QR Code found. Please generate a new QR...</h2>`;
+    }
+});
 
         // Countdown Function
         function startCountdown(duration) {
