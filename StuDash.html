@@ -583,6 +583,62 @@
     visibility: visible;
     opacity: 1;
 }
+/* Container for the date picker */
+.date-picker-container {
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Label for the date picker */
+.date-picker-container label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Date picker input */
+#datePicker {
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #333;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover effect for the date picker */
+#datePicker:hover {
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
+}
+
+/* Focus effect for the date picker */
+#datePicker:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+/* Placeholder text color */
+#datePicker::placeholder {
+    color: #999;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 600px) {
+    .date-picker-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #datePicker {
+        width: 100%;
+    }
+}
     </style>
 </head>
 
@@ -668,6 +724,10 @@
     <button class="filter-btn" onclick="filterAttendance('daily')">Daily</button>
     <button class="filter-btn" onclick="filterAttendance('weekly')">Weekly</button>
     <button class="filter-btn" onclick="filterAttendance('monthly')">Monthly</button>
+    <div class="date-picker-container">
+        <label for="datePicker">Select Date:</label>
+        <input type="date" id="datePicker" onchange="filterByDate(this.value)">
+    </div>
 </div>
 
 <div class="summary-wrapper">
@@ -734,7 +794,7 @@
 
     // Display attendance summary when entering the section
     if (sectionId === 'attendanceSummary') {
-        displayAttendanceSummary('daily');
+        displayAttendanceSummary('all');
     }
 
     // Update active button in the sidebar
@@ -1005,11 +1065,12 @@
 
 
 // Function to calculate and display attendance summary
-function displayAttendanceSummary(filter = 'daily') {
+function displayAttendanceSummary(filter = 'all', selectedDate = null) {
     const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
     const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
-    const filteredRecords = filterAttendanceRecords(attendanceRecords, loggedInRollNumber, filter);
+    const filteredRecords = filterAttendanceRecords(attendanceRecords, loggedInRollNumber, filter, selectedDate);
 
+    // Rest of the function remains the same...
     // Calculate overall attendance percentage
     const totalClasses = filteredRecords.length;
     const presentClasses = filteredRecords.filter(record => record.status === 'Present').length;
@@ -1055,7 +1116,6 @@ function displayAttendanceSummary(filter = 'daily') {
     // Render subject-wise attendance chart (pie chart)
     renderSubjectWiseAttendanceChart(subjects, subjectPercentages);
 }
-
 
 function renderOverallAttendanceChart(overallPercentage) {
     const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
@@ -1130,7 +1190,7 @@ function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
 }
 
 // Function to filter attendance records based on the selected filter
-function filterAttendanceRecords(records, rollNumber, filter) {
+function filterAttendanceRecords(records, rollNumber, filter, selectedDate = null) {
     const today = new Date().toISOString().split('T')[0];
     const currentWeek = getWeekNumber(new Date());
     const currentMonth = new Date().getMonth() + 1;
@@ -1144,17 +1204,22 @@ function filterAttendanceRecords(records, rollNumber, filter) {
 
         switch (filter) {
             case 'daily':
-                return record.date === today;
+            return selectedDate ? record.date === selectedDate : record.date === today;
             case 'weekly':
                 return recordWeek === currentWeek && recordDate.getFullYear() === new Date().getFullYear();
             case 'monthly':
                 return recordMonth === currentMonth && recordDate.getFullYear() === new Date().getFullYear();
+            case 'all':
             default:
                 return true;
         }
     });
 }
 
+function filterByDate(selectedDate) {
+    // Pass the selected date to the displayAttendanceSummary function
+    displayAttendanceSummary('daily', selectedDate);
+}
 // Helper function to get the week number of a date
 function getWeekNumber(date) {
     const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
@@ -1169,7 +1234,7 @@ function filterAttendance(filter) {
 
 // Call the function to display the summary when the page loads
 document.addEventListener("DOMContentLoaded", function () {
-    displayAttendanceSummary('daily');
+    displayAttendanceSummary('all');
 });
 
     </script>
