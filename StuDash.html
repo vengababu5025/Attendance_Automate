@@ -1116,58 +1116,28 @@ function displayAttendanceSummary(filter = 'all', selectedDate = null) {
     // Render subject-wise attendance chart (pie chart)
     renderSubjectWiseAttendanceChart(subjects, subjectPercentages);
 }
+let overallAttendanceChartInstance = null;
+let subjectWiseAttendanceChartInstance = null;
 
 function renderOverallAttendanceChart(overallPercentage) {
     const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Overall Attendance'],
-            datasets: [{
-                label: 'Attendance Percentage',
-                data: [overallPercentage],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
-            }
-        }
-    });
-}
 
-// Function to render the subject-wise attendance chart
-function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
-    const ctx = document.getElementById('subjectWiseAttendanceChart').getContext('2d');
-    new Chart(ctx, {
+    // Destroy existing chart instance if it exists
+    if (overallAttendanceChartInstance) {
+        overallAttendanceChartInstance.destroy();
+    }
+
+    let presentRate = overallPercentage;
+    let absentRate = 100 - overallPercentage;
+
+    overallAttendanceChartInstance = new Chart(ctx, {
         type: 'pie',
         data: {
-            labels: subjects,
+            labels: ['Present', 'Absent'],
             datasets: [{
-                label: 'Attendance Percentage',
-                data: subjectPercentages,
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-                borderColor: [
-                    'rgba(255, 99, 132, 1)',
-                    'rgba(54, 162, 235, 1)',
-                    'rgba(255, 206, 86, 1)',
-                    'rgba(75, 192, 192, 1)',
-                    'rgba(153, 102, 255, 1)',
-                    'rgba(255, 159, 64, 1)'
-                ],
+                data: [presentRate, absentRate],
+                backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
+                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
                 borderWidth: 1
             }]
         },
@@ -1189,7 +1159,63 @@ function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
     });
 }
 
-// Function to filter attendance records based on the selected filter
+function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
+    const ctx = document.getElementById('subjectWiseAttendanceChart').getContext('2d');
+
+    // Destroy existing chart instance if it exists
+    if (subjectWiseAttendanceChartInstance) {
+        subjectWiseAttendanceChartInstance.destroy();
+    }
+
+    // Define an array of different colors for each bar
+    const barColors = [
+        'rgba(255, 99, 132, 0.6)',
+        'rgba(54, 162, 235, 0.6)',
+        'rgba(255, 206, 86, 0.6)',
+        'rgba(75, 192, 192, 0.6)',
+        'rgba(153, 102, 255, 0.6)',
+        'rgba(255, 159, 64, 0.6)'
+    ];
+
+    // Ensure each subject gets a different color by repeating the color set if needed
+    const backgroundColors = subjects.map((_, index) => barColors[index % barColors.length]);
+    const borderColors = subjects.map((_, index) => barColors[index % barColors.length].replace('0.6', '1')); // Darker border
+
+    subjectWiseAttendanceChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: subjects,
+            datasets: [{
+                label: 'Attendance Percentage',
+                data: subjectPercentages,
+                backgroundColor: backgroundColors,
+                borderColor: borderColors,
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            return `${context.label}: ${context.raw}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}// Function to filter attendance records based on the selected filter
 function filterAttendanceRecords(records, rollNumber, filter, selectedDate = null) {
     const today = new Date().toISOString().split('T')[0];
     const currentWeek = getWeekNumber(new Date());
