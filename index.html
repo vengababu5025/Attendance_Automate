@@ -30,10 +30,32 @@
                 {"firstName":"pradeep","lastName":"Rao","department":"IT","username":"pradeeprao","password":"pradeep@123"},
                 {"firstName":"suman","lastName":"Sharma","department":"ECE","username":"suman_sharma","password":"suman@456"}
             ];
+            const attendanceStaticRecords=[
+  {"date": "2025-02-20", "faculty": "Dr. Smith", "subject": "Mathematics", "hour": "1", "location": "17.432576, 78.331904", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Present"},
+  {"date": "2025-02-21", "faculty": "Prof. Johnson", "subject": "Physics", "hour": "2", "location": "17.432580, 78.331900", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Present"},
+  {"date": "2025-02-22", "faculty": "Dr. Brown", "subject": "Chemistry", "hour": "3", "location": "17.432590, 78.331910", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Absent"},
+  {"date": "2025-02-23", "faculty": "Dr. Williams", "subject": "Biology", "hour": "4", "location": "17.432600, 78.331920", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Present"},
+  {"date": "2025-02-24", "faculty": "Dr. Taylor", "subject": "English", "hour": "5", "location": "17.432610, 78.331930", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Absent"},
+  {"date": "2025-02-25", "faculty": "Prof. Lee", "subject": "Computer Science", "hour": "6", "location": "17.432620, 78.331940", "name": "Vengababu Madala", "rollNumber": "1kb13001", "status": "Present"},
+  {"date": "2025-02-20", "faculty": "Dr. Smith", "subject": "Mathematics", "hour": "1", "location": "17.432576, 78.331904", "name": "John Doe", "rollNumber": "1kb13002", "status": "Absent"},
+  {"date": "2025-02-21", "faculty": "Prof. Johnson", "subject": "Physics", "hour": "2", "location": "17.432580, 78.331900", "name": "John Doe", "rollNumber": "1kb13002", "status": "Present"},
+  {"date": "2025-02-22", "faculty": "Dr. Brown", "subject": "Chemistry", "hour": "3", "location": "17.432590, 78.331910", "name": "John Doe", "rollNumber": "1kb13002", "status": "Present"},
+  {"date": "2025-02-23", "faculty": "Dr. Williams", "subject": "Biology", "hour": "4", "location": "17.432600, 78.331920", "name": "John Doe", "rollNumber": "1kb13002", "status": "Absent"},
+  {"date": "2025-02-24", "faculty": "Dr. Taylor", "subject": "English", "hour": "5", "location": "17.432610, 78.331930", "name": "John Doe", "rollNumber": "1kb13002", "status": "Present"},
+  {"date": "2025-02-25", "faculty": "Prof. Lee", "subject": "Computer Science", "hour": "6", "location": "17.432620, 78.331940", "name": "John Doe", "rollNumber": "1kb13002", "status": "Absent"},
+  {"date": "2025-02-20", "faculty": "Dr. Smith", "subject": "Mathematics", "hour": "1", "location": "17.432576, 78.331904", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Present"},
+  {"date": "2025-02-21", "faculty": "Prof. Johnson", "subject": "Physics", "hour": "2", "location": "17.432580, 78.331900", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Absent"},
+  {"date": "2025-02-22", "faculty": "Dr. Brown", "subject": "Chemistry", "hour": "3", "location": "17.432590, 78.331910", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Present"},
+  {"date": "2025-02-23", "faculty": "Dr. Williams", "subject": "Biology", "hour": "4", "location": "17.432600, 78.331920", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Present"},
+  {"date": "2025-02-24", "faculty": "Dr. Taylor", "subject": "English", "hour": "5", "location": "17.432610, 78.331930", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Absent"},
+  {"date": "2025-02-25", "faculty": "Prof. Lee", "subject": "Computer Science", "hour": "6", "location": "17.432620, 78.331940", "name": "Jane Smith", "rollNumber": "1kb13003", "status": "Present"}
+]
+
 
             // Store separately in session storage
             sessionStorage.setItem("students", JSON.stringify(students));
             sessionStorage.setItem("teacherData", JSON.stringify(teacherData));
+            sessionStorage.setItem("attendanceStaticRecords",JSON.stringify(attendanceStaticRecords))
         }
 
         function navigateToLogin() {

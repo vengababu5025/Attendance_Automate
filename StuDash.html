@@ -724,6 +724,7 @@
     <button class="filter-btn" onclick="filterAttendance('daily')">Daily</button>
     <button class="filter-btn" onclick="filterAttendance('weekly')">Weekly</button>
     <button class="filter-btn" onclick="filterAttendance('monthly')">Monthly</button>
+    <button class="filter-btn" onclick="filterAttendance('all')">Remove Filter</button>
     <div class="date-picker-container">
         <label for="datePicker">Select Date:</label>
         <input type="date" id="datePicker" onchange="filterByDate(this.value)">
@@ -1066,7 +1067,9 @@
 
 // Function to calculate and display attendance summary
 function displayAttendanceSummary(filter = 'all', selectedDate = null) {
-    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
+    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || 
+                           JSON.parse(sessionStorage.getItem('attendanceStaticRecords')) || [];
+
     const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
     const filteredRecords = filterAttendanceRecords(attendanceRecords, loggedInRollNumber, filter, selectedDate);
 
