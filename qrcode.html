@@ -271,6 +271,16 @@
     visibility: visible;
     opacity: 1;
 }
+
+@keyframes blink-red {
+    0% { opacity: 1; color: red; }
+    50% { opacity: 0; color: red; }
+    100% { opacity: 1; color: red; }
+}
+
+.blink-red {
+    animation: blink-red 1s linear infinite;
+}
     </style>
 </head>
 
@@ -353,8 +363,7 @@
         }
 
         // Display QR Code and Start Countdown
-// Display QR Code and Start Countdown
-document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function () {
     const qrImage = sessionStorage.getItem('qrImage');
     const qrData = JSON.parse(sessionStorage.getItem('qrData'));
 
@@ -363,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (qrImage && qrData) {
         // Display the QR code image
-        qrImageContainer.innerHTML = `<img src="${qrImage}" alt="QR Code" style="max-width: 100%;">`;
+        qrImageContainer.innerHTML = `<img id="qrImage" src="${qrImage}" alt="QR Code" style="max-width: 100%;">`;
 
         // Calculate the remaining time
         const expirationTime = qrData.expires;
@@ -374,9 +383,10 @@ document.addEventListener('DOMContentLoaded', function () {
             // Start the countdown
             startCountdown(remainingTime);
         } else {
-            // Display expired message
+            // Display expired message and blur the image
             document.getElementById('countdown').style.display = 'none';
             document.getElementById('expiredMessage').style.display = 'block';
+            document.getElementById('qrImage').style.filter = 'blur(5px)';
         }
     } else {
         // Display message in place of QR code image
@@ -384,29 +394,33 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-        // Countdown Function
-        function startCountdown(duration) {
-            const countdownElement = document.getElementById('countdown');
-            const expiredMessage = document.getElementById('expiredMessage');
+function startCountdown(duration) {
+    const countdownElement = document.getElementById('countdown');
+    const expiredMessage = document.getElementById('expiredMessage');
+    const qrImage = document.getElementById('qrImage');
 
-            let timer = duration;
-            const interval = setInterval(() => {
-                const hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timer % (1000 * 60)) / 1000);
+    let timer = duration;
+    const interval = setInterval(() => {
+        const hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timer % (1000 * 60)) / 1000);
 
-                countdownElement.innerHTML = `Time remaining: ${Math.floor(hours)}h ${Math.floor(minutes)}m ${Math.floor(seconds)}s`;
+        countdownElement.innerHTML = `Time remaining: ${Math.floor(hours)}h ${Math.floor(minutes)}m ${Math.floor(seconds)}s`;
 
-                if (timer <= 0) {
-                    clearInterval(interval);
-                    countdownElement.style.display = 'none';
-                    expiredMessage.style.display = 'block';
-                } else {
-                    timer -= 1000;
-                }
-            }, 1000);
+        if (timer <= 10000) { // 10 seconds remaining
+            countdownElement.classList.add('blink-red'); // Add the blink-red class
         }
-    </script>
+
+        if (timer <= 0) {
+            clearInterval(interval);
+            countdownElement.style.display = 'none';
+            expiredMessage.style.display = 'block';
+            qrImage.style.filter = 'blur(5px)';
+        } else {
+            timer -= 1000;
+        }
+    }, 1000);
+}  </script>
 </body>
 
 </html>
