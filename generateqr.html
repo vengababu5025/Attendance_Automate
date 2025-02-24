@@ -645,7 +645,7 @@
             sessionStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
 
             // Set the expiration time for the QR code data (1 hour from now)
-            const expirationTime = Date.now() + 10000 //* 60 * 1000; // 1 hour from now
+            const expirationTime = Date.now() + 15000 //* 60 * 1000; // 1 hour from now
             sessionStorage.setItem("qrData", JSON.stringify({ data: qrData, expires: expirationTime }));
         }
         // Function to open the modal
