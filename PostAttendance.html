@@ -131,6 +131,7 @@
             background: #ff002b;
             transform: translateY(-2px);
         }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -142,6 +143,7 @@
             z-index: 998;
             display: none;
         }
+
         .content {
             flex: 1;
             padding: 4rem 2rem;
@@ -378,79 +380,86 @@
         .closebtn:hover {
             color: black;
         }
+
         .home-btn {
-    position: relative;
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-right: 20px; /* Optional: Add some space from the right edge */
-}
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 20px;
+            /* Optional: Add some space from the right edge */
+        }
 
-.home-btn .tooltip {
-    visibility: hidden;
-    width: 120px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%; /* Position the tooltip above the button */
-    left: 50%;
-    margin-left: -60px; /* Center the tooltip */
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+        .home-btn .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            /* Position the tooltip above the button */
+            left: 50%;
+            margin-left: -60px;
+            /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-.home-btn .tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%; /* At the bottom of the tooltip */
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
+        .home-btn .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
 
-.home-btn:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-}
-.smb-btn {
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
-  text-align: left;
-  display: block;
-  margin-left: 75%;  /* Ensures the button starts from the left */
-  margin-top: 20px;
-}
+        .home-btn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
 
-.smb-btn:hover {
-  background: linear-gradient(135deg, #0056b3, #003580); /* Darker gradient on hover */
-  transform: scale(1.05);
-  box-shadow: 3px 5px 8px rgba(0, 0, 0, 0.3);
-}
+        .smb-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            display: block;
+            margin-left: 75%;
+            /* Ensures the button starts from the left */
+            margin-top: 20px;
+        }
 
-.smb-btn:active {
-  transform: scale(0.98);
-  box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
-}
+        .smb-btn:hover {
+            background: linear-gradient(135deg, #0056b3, #003580);
+            /* Darker gradient on hover */
+            transform: scale(1.05);
+            box-shadow: 3px 5px 8px rgba(0, 0, 0, 0.3);
+        }
 
+        .smb-btn:active {
+            transform: scale(0.98);
+            box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 
@@ -567,8 +576,9 @@
         let searchResults = []; // Array to store search results
 
         // Fetch student data from session storage and store it locally
-        function fetchStudentData() {
-            const students = JSON.parse(sessionStorage.getItem('students')) || [];
+        async function fetchStudentData() {
+            const response = await fetch('http://localhost:5062/api/Student/GetStudents');
+            const students = await response.json();
             studentsData = students.map((student, index) => ({
                 sno: index + 1,
                 firstName: student.firstName || "Unknown",
@@ -578,10 +588,12 @@
                 section: student.section || "N/A",
                 year: student.year || "N/A",
             }));
+            console.log(studentsData);
         }
 
         // Filter students based on dropdown selections
         function filterStudents() {
+            console.log(studentsData);
             const department = document.getElementById('department').value;
             const section = document.getElementById('section').value;
             const year = document.getElementById('year').value;
@@ -675,63 +687,62 @@
 
 
         // Validate QR Code before submitting attendance
-        function validateAndSubmitAttendance() {
-            const qrData = sessionStorage.getItem("qrData");
+        async function validateAndSubmitAttendance() {
+            const faculty = sessionStorage.getItem("loggedInUser")?.replace(/"/g, '');
 
-            if (!qrData) {
-                showAlert("Please generate a QR code before posting attendance.");
+            if (!faculty) {
+                showAlert("Faculty information is missing. Please log in again.");
                 return;
             }
 
             try {
-                // Parse the QR data
-                const parsedData = JSON.parse(qrData);
+                // Make an API call to get active QR data
+                const response = await fetch(`http://localhost:5062/api/Attendance/GetActiveQR?faculty=${encodeURIComponent(faculty)}`);
 
-                // Get current timestamp
-                const currentTime = Date.now();
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch active QR data. Status: ${response.status}`);
+                }
 
-                // Validate expiration time
-                if (parsedData.expires && currentTime > parsedData.expires) {
-                    showAlert("QR code has expired. Please generate a new one.");
+                const qrData = await response.json();
+
+                if (!qrData) {
+                    showAlert("No active QR code found. Please generate one.");
                     return;
                 }
 
+                // Get current timestamp
+                // const currentTime = Date.now();
+                // const tine=new Date(qrData.expirationTime).getTime();
+                // // Validate expiration time
+                // if (new Date(qrData.expirationTime).getTime() < currentTime) {
+                //     showAlert("QR code has expired. Please generate a new one.");
+                //     return;
+                // }
+
                 // If QR code is valid, proceed to submit attendance
-                submitAttendance(parsedData.data);
+                submitAttendance(qrData);
 
             } catch (error) {
                 console.log(error);
-                showAlert(`Invalid QR data. Please regenerate the QR code.${error}`);
+                showAlert(`Invalid QR data. Please try again. ${error.message}`);
             }
         }
 
-
-        function submitAttendance(qrData) {
+        async function submitAttendance(qrData) {
     try {
-        // Parse the custom format into an object
-        const parsedData = {};
-        // Split by newline and then by spaces
-        qrData.split('\n').forEach(line => {
-            // Split by colon to separate key and value
-            const [key, value] = line.split(':').map(item => item.trim());
-            if (key && value) {
-                parsedData[key] = value;
-            }
-        });
-        console.log("Parsed QR Data:", parsedData);
-        
         const tableBody = document.querySelector("#studentTable tbody");
         const rows = tableBody.querySelectorAll("tr");
-        const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
-        const today = new Date().toISOString().split('T')[0];
-        let alreadyPosted = false; // Flag to check if any student's attendance is already posted
 
         if (rows.length === 0) {
-            alreadyPosted = true;
-            showAlert("Please Select At least one student to Post Attendance");
+            showAlert("Please select at least one student to post attendance.");
+            return;
         }
 
-        rows.forEach(row => {
+        const qrDate = new Date(qrData.date).toLocaleDateString('en-CA');
+        const subject = qrData.subject;
+        const hour = qrData.hour;
+
+        for (const row of rows) {
             const cells = row.querySelectorAll("td");
             const student = {
                 sno: cells[0].textContent.trim(),
@@ -741,54 +752,42 @@
                 section: cells[4].textContent.trim(),
                 year: cells[5].textContent.trim()
             };
-            const qrDate = new Date(parsedData['D']).toISOString().split('T')[0];
-            // Check if attendance for this student has already been posted today
-            const isAlreadyPosted = attendanceRecords.some(record =>
-                record.rollNumber === student.rollNumber 
-                && record.date === qrDate
-                && record.subject===parsedData['S']
-                && record.hour===parsedData['H']
-                && record.status==="Present"
-            );
 
-            if (isAlreadyPosted) {
-                alreadyPosted = true; // Set the flag to true
-                showAlert(`Attendance for ${student.name} (${student.rollNumber}) has already been posted today.`);
-            } else {
-                // If not posted, add the attendance record
-                
-                const subject = parsedData['S'];
-                const hour = parsedData['H'];
-                const recordIndex = attendanceRecords.findIndex(record =>
-            record.date === qrDate &&
-            record.rollNumber === student.rollNumber &&
-            record.subject === subject &&
-            record.hour === hour &&
-            record.status==="Absent"
-        );
-                if(recordIndex!==-1){
-                    attendanceRecords[recordIndex].status = "Present";
-                console.log("Updated attendance record:", attendanceRecords[recordIndex]);
-             // Save the updated attendance records back to session storage
-                 sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
+            // ✅ Create request data to send in the body
+            const requestData = {
+                RollNumber: student.rollNumber,
+                Date: qrDate,
+                Subject: subject,
+                Hour: hour
+            };
+
+            try {
+                const response = await fetch(`http://localhost:5062/api/Attendance/PostAttendance`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showAlert(result.message, true);
+                } else {
+                    throw new Error(result.message);
                 }
-                else {
-            // If no matching record is found, show an error
-            showAlert(`No attendance record found for ${rollNumber} on ${qrDate} for ${subject} (Hour ${hour}).`);
-        }
+            } catch (error) {
+                console.error(`Error updating attendance for ${student.rollNumber}:`, error);
+                showAlert(`Failed to update attendance for ${student.rollNumber}.`);
             }
-        });
-
-        if (!alreadyPosted) {
-            sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-            console.log("Attendance records stored:", attendanceRecords);
-            showAlert("Attendance submitted successfully!", true); // Success alert
         }
     } catch (error) {
         console.error("Error submitting attendance:", error);
         showAlert("An error occurred while submitting attendance. Please try again.");
     }
-}    // Function to submit attendance
+}
+
         function showAlert(message, isSuccess = false) {
             const alertElement = document.getElementById('customAlert');
             const alertMessage = document.getElementById('alertMessage');
@@ -828,9 +827,10 @@
             window.location.href = "login.html";
         }
 
-        // Initialize student data on page load
-        fetchStudentData();
-        filterStudents(); // Display all students initially based on default dropdown values
+        (async () => {
+            await fetchStudentData(); // Wait until data is fetched
+            filterStudents(); // Now filter the data
+        })();
     </script>
 </body>
 

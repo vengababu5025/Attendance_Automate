@@ -142,72 +142,78 @@
         }
 
         @keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
 
-@keyframes slideOut {
-    from {
-        opacity: 1;
-        transform: translateX(0);
-    }
-    to {
-        opacity: 0;
-        transform: translateX(100%);
-    }
-}
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
 
-/* Alert Styles */
-#customAlert {
-    position: fixed;
-    top: 20px;
-    right: -100%; /* Start off-screen */
-    padding: 15px;
-    border-radius: 5px;
-    color: white;
-    font-size: 14px;
-    z-index: 1000;
-    opacity: 0;
-    transition: right 0.5s ease-out, opacity 0.5s ease-out;
-    animation: slideIn 0.5s ease-out;
-}
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
 
-#customAlert.success {
-    background-color: #4CAF50; /* Green for success */
-}
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
 
-#customAlert.error {
-    background-color: #f44336; /* Red for error */
-}
+        /* Alert Styles */
+        #customAlert {
+            position: fixed;
+            top: 20px;
+            right: -100%;
+            /* Start off-screen */
+            padding: 15px;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: right 0.5s ease-out, opacity 0.5s ease-out;
+            animation: slideIn 0.5s ease-out;
+        }
 
-#customAlert.show {
-    right: 20px; /* Slide in */
-    opacity: 1;
-}
+        #customAlert.success {
+            background-color: #4CAF50;
+            /* Green for success */
+        }
 
-#customAlert.slide-out {
-    right: -100%; /* Slide out */
-    opacity: 0;
-}
+        #customAlert.error {
+            background-color: #f44336;
+            /* Red for error */
+        }
 
-.closebtn {
-    margin-left: 15px;
-    color: white;
-    font-weight: bold;
-    float: right;
-    cursor: pointer;
-}
+        #customAlert.show {
+            right: 20px;
+            /* Slide in */
+            opacity: 1;
+        }
 
-.closebtn:hover {
-    color: black;
-}
-        
+        #customAlert.slide-out {
+            right: -100%;
+            /* Slide out */
+            opacity: 0;
+        }
+
+        .closebtn {
+            margin-left: 15px;
+            color: white;
+            font-weight: bold;
+            float: right;
+            cursor: pointer;
+        }
+
+        .closebtn:hover {
+            color: black;
+        }
     </style>
 </head>
 
@@ -454,56 +460,71 @@
 
                 return newRollNumber;
             }
-            studentFormElement.addEventListener("submit", function (event) {
-                event.preventDefault();
+studentFormElement.addEventListener("submit", async function (event) {
+    event.preventDefault();
 
-                if (!validateStudentCurrentStep()) return;
+    if (!validateStudentCurrentStep()) return;
 
-                const password = document.getElementById("password").value;
-                const confirmPassword = document.getElementById("confirmPassword").value;
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
 
-                if (password !== confirmPassword) {
-                    showAlert("Passwords do not match! Please try again.", false);
-                    return;
-                }
+    if (password !== confirmPassword) {
+        showAlert("Passwords do not match! Please try again.", false);
+        return;
+    }
 
-                // Get selected year and department
-                const year = document.getElementById("Year").value;
-                const department = document.getElementById("department").value;
+    // Get selected year and department
+    const year = document.getElementById("Year").value;
+    const department = document.getElementById("department").value;
 
-                // Generate roll number based on the selected year and department
-                const rollNumber = generateRollNumber(year, department);
-                //   document.getElementById("rollNumber").value = rollNumber;
+    // Generate roll number based on the selected year and department
+    const rollNumber = generateRollNumber(year, department);
 
-                // Collect student data
-                const studentData = {
-                    firstName: document.getElementById("firstName").value,
-                    lastName: document.getElementById("lastName").value,
-                    admissionNo: document.getElementById("admissionNo").value,
-                    phone: document.getElementById("phone").value,
-                    email: document.getElementById("email").value,
-                    address: document.getElementById("address").value,
-                    year: year,
-                    department: department,
-                    section: document.getElementById("section").value,
-                    rollNumber: rollNumber,
-                    password: password,
-                };
+    // Collect student data
+    const studentData = {
+        firstName: document.getElementById("firstName").value,
+        lastName: document.getElementById("lastName").value,
+        admissionNo: document.getElementById("admissionNo").value,
+        phone: document.getElementById("phone").value,
+        email: document.getElementById("email").value,
+        address: document.getElementById("address").value,
+        year: year,
+        department: department,
+        section: document.getElementById("section").value,
+        rollNumber: rollNumber,
+        password: password,
+    };
 
-                // Retrieve existing student records from sessionStorage
-                const existingStudents = JSON.parse(sessionStorage.getItem("students")) || [];
+    try {
 
-                // Add the new student data to the array
-                existingStudents.push(studentData);
+        const response = await fetch('http://localhost:5062/api/Student/AddStudent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(studentData)
+        });
 
-                // Save the updated array back to sessionStorage
-                sessionStorage.setItem("students", JSON.stringify(existingStudents));
+        const result = await response.json();
 
-                showAlert("Student Registration successful!", true);
-                studentFormElement.reset();
-                studentCurrentStep = 0;
-                showStudentStep(0); // Reset to the first step
-            }); const teacherSteps = document.querySelectorAll("#teacherMultiStepForm .form-step");
+        if (response.ok) {
+                        showAlert(result.message || "Student Registration successful!", true);
+
+
+            studentFormElement.reset();
+            studentCurrentStep = 0;
+            showStudentStep(0);
+        } else {
+      
+            showAlert(result.message || "Failed to register student.", false);
+        }
+    } catch (error) {
+
+        showAlert(`Error: ${error.message}`, false);
+    }
+});
+
+             const teacherSteps = document.querySelectorAll("#teacherMultiStepForm .form-step");
             const teacherNextButtons = document.querySelectorAll("#teacherMultiStepForm .next");
             const teacherBackButtons = document.querySelectorAll("#teacherMultiStepForm .back");
             const teacherFormElement = document.getElementById("teacherMultiStepForm");
@@ -516,69 +537,69 @@
             }
 
             function validateTeacherCurrentStep() {
-    let isValid = true; // Assume the form is valid initially
-    const inputs = teacherSteps[teacherCurrentStep].querySelectorAll("input[required], select[required]");
+                let isValid = true; // Assume the form is valid initially
+                const inputs = teacherSteps[teacherCurrentStep].querySelectorAll("input[required], select[required]");
 
-    // Clear all previous error messages
-    const errorMessages = teacherSteps[teacherCurrentStep].querySelectorAll(".error-message");
-    errorMessages.forEach((errorMessage) => {
-        errorMessage.textContent = "";
-        errorMessage.style.display = "none";
-    });
+                // Clear all previous error messages
+                const errorMessages = teacherSteps[teacherCurrentStep].querySelectorAll(".error-message");
+                errorMessages.forEach((errorMessage) => {
+                    errorMessage.textContent = "";
+                    errorMessage.style.display = "none";
+                });
 
-    // Validate each input field
-    for (let input of inputs) {
-        const errorMessage = input.nextElementSibling; // Get the error message span next to the input
+                // Validate each input field
+                for (let input of inputs) {
+                    const errorMessage = input.nextElementSibling; // Get the error message span next to the input
 
-        if (!input.value.trim()) {
-            // If the input is empty, show the error message
-            if (errorMessage && errorMessage.classList.contains("error-message")) {
-                errorMessage.textContent = `Please fill in the ${input.placeholder || input.id} field.`;
-                errorMessage.style.display = "block";
-                isValid = false; // Mark the form as invalid
+                    if (!input.value.trim()) {
+                        // If the input is empty, show the error message
+                        if (errorMessage && errorMessage.classList.contains("error-message")) {
+                            errorMessage.textContent = `Please fill in the ${input.placeholder || input.id} field.`;
+                            errorMessage.style.display = "block";
+                            isValid = false; // Mark the form as invalid
+                        }
+                        input.focus(); // Focus on the first invalid field
+                    } else {
+                        // If the input is valid, hide the error message
+                        if (errorMessage && errorMessage.classList.contains("error-message")) {
+                            errorMessage.textContent = "";
+                            errorMessage.style.display = "none";
+                        }
+                    }
+                }
+
+                return isValid; // Return true if all fields are valid, otherwise false
             }
-            input.focus(); // Focus on the first invalid field
-        } else {
-            // If the input is valid, hide the error message
-            if (errorMessage && errorMessage.classList.contains("error-message")) {
-                errorMessage.textContent = "";
-                errorMessage.style.display = "none";
+
+
+
+            // Function to show alert
+            function showAlert(message, isSuccess = false) {
+                const alertElement = document.getElementById('customAlert');
+                const alertMessage = document.getElementById('alertMessage');
+
+                // Set alert content and style
+                alertMessage.textContent = message;
+                alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
+                alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
+                alertElement.classList.remove('success'); // Remove success class if present
+
+                if (isSuccess) {
+                    alertElement.classList.add('success'); // Add success class for green background
+                }
+
+                // Display the alert with slide-in animation
+                alertElement.style.display = 'block';
+                alertElement.classList.add('show');
+
+                // Automatically hide the alert after 5 seconds with slide-out animation
+                setTimeout(() => {
+                    alertElement.classList.add('slide-out'); // Add slide-out animation
+                    setTimeout(() => {
+                        alertElement.style.display = 'none'; // Hide after animation completes
+                    }, 500); // Wait for slide-out animation to finish
+                }, 5000); // Display for 5 seconds
             }
-        }
-    }
-
-    return isValid; // Return true if all fields are valid, otherwise false
-}
-
-
-
-// Function to show alert
-function showAlert(message, isSuccess = false) {
-    const alertElement = document.getElementById('customAlert');
-    const alertMessage = document.getElementById('alertMessage');
-
-    // Set alert content and style
-    alertMessage.textContent = message;
-    alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
-    alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
-    alertElement.classList.remove('success'); // Remove success class if present
-
-    if (isSuccess) {
-        alertElement.classList.add('success'); // Add success class for green background
-    }
-
-    // Display the alert with slide-in animation
-    alertElement.style.display = 'block';
-    alertElement.classList.add('show');
-
-    // Automatically hide the alert after 5 seconds with slide-out animation
-    setTimeout(() => {
-        alertElement.classList.add('slide-out'); // Add slide-out animation
-        setTimeout(() => {
-            alertElement.style.display = 'none'; // Hide after animation completes
-        }, 500); // Wait for slide-out animation to finish
-    }, 5000); // Display for 5 seconds
-}
 
             teacherNextButtons.forEach((button) => {
                 button.addEventListener("click", () => {
@@ -598,7 +619,7 @@ function showAlert(message, isSuccess = false) {
                 });
             });
 
-            teacherFormElement.addEventListener("submit", function (event) {
+            teacherFormElement.addEventListener("submit", async function (event) {
                 event.preventDefault();
 
                 if (!validateTeacherCurrentStep()) return;
@@ -620,21 +641,41 @@ function showAlert(message, isSuccess = false) {
                     password: password,
                 };
 
-                const existingTeacher = JSON.parse(sessionStorage.getItem("teacherData")) || [];
+                try {
+                    const response = await fetch("http://localhost:5062/api/Teacher/AddTeacher", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(teacherData)
+                    });
 
-                // Add the new student data to the array
-                existingTeacher.push(teacherData);
+                    // Check HTTP status
+                    if (response.ok) {
+                        const result = await response.json();
 
-                // Save the updated array back to sessionStorage
-                sessionStorage.setItem("teacherData", JSON.stringify(existingTeacher));
+                        // Handle success response
+                        showAlert(result.message || "Teacher added successfully!", true);
 
+                        // Optionally log teacher details
+                        console.log(`ID: ${result.data.id}`);
+                        console.log(`Name: ${result.data.firstName} ${result.data.lastName}`);
+                        console.log(`Department: ${result.data.department}`);
+                        console.log(`Username: ${result.data.username}`);
 
-
-                showAlert("Student Registration successful!", true);
-                teacherFormElement.reset();
-                teacherCurrentStep = 0;
-                showTeacherStep(0); // Reset to the first step
+                        teacherFormElement.reset();
+                        teacherCurrentStep = 0;
+                        showTeacherStep(0);
+                    } else {
+                        // Handle error response
+                        const errorResult = await response.json();
+                        showAlert(errorResult.message || "Failed to register teacher.", false);
+                    }
+                } catch (error) {
+                    showAlert(`Error: ${error.message}`, false);
+                }
             });
+
 
             // Initialize forms
             showStudentStep(studentCurrentStep);

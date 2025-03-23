@@ -35,6 +35,43 @@
         .form-step.active {
             display: block;
         }
+                /* Alert Styles */
+                #customAlert {
+            position: fixed;
+            top: 20px;
+            right: -100%;
+            /* Start off-screen */
+            padding: 15px;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: right 0.5s ease-out, opacity 0.5s ease-out;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        #customAlert.success {
+            background-color: #4CAF50;
+            /* Green for success */
+        }
+
+        #customAlert.error {
+            background-color: #f44336;
+            /* Red for error */
+        }
+
+        #customAlert.show {
+            right: 20px;
+            /* Slide in */
+            opacity: 1;
+        }
+
+        #customAlert.slide-out {
+            right: -100%;
+            /* Slide out */
+            opacity: 0;
+        }
     </style>
 </head>
 <body class="login-body">
@@ -119,53 +156,98 @@
 
         // Handle Student Login
         async function handleStudentLogin(event) {
-            event.preventDefault();
-            const userId = document.getElementById('studentUserId').value;
-            const password = document.getElementById('studentPassword').value;
-            const rememberMe = document.getElementById('studentRememberMe').checked;
+    event.preventDefault();
 
-            if (rememberMe) {
-                localStorage.setItem('rememberedStudent', userId);
-            } else {
-                localStorage.removeItem('rememberedStudent');
-            }
+    const userId = document.getElementById('studentUserId').value;
+    const password = document.getElementById('studentPassword').value;
+    const rememberMe = document.getElementById('studentRememberMe').checked;
 
-            const user = await checkStudentCredentials(userId, password);
-            
-            if (user) {
-                console.log("login sucess");
-                sessionStorage.setItem('loggedInUser', JSON.stringify(user.firstName));
-                sessionStorage.setItem('RollNumber', JSON.stringify(user.rollNumber));
-                sessionStorage.setItem('userType', 'student');
-                window.location.href = 'StuDash.html';
-            } else {
-                alert('Invalid credentials!');
-            }
+    if (rememberMe) {
+        localStorage.setItem('rememberedStudent', userId);
+    } else {
+        localStorage.removeItem('rememberedStudent');
+    }
+
+    try {
+        const response = await fetch('http://localhost:5062/api/Student/StudentLogin', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: userId,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            console.log("Login successful");
+            sessionStorage.setItem('loggedInUser', JSON.stringify(result.data.firstName));
+            sessionStorage.setItem('RollNumber', JSON.stringify(result.data.rollNumber));
+            sessionStorage.setItem('userType', 'student');
+
+            window.location.href = 'StuDash.html';
+        } else {
+            // ❌ Show error message
+            showAlert(result.message || "Invalid credentials!", false);
         }
+    } catch (error) {
+        // ❌ Handle network or server error
+        console.error("Login error:", error);
+        showAlert(`Error: ${error.message}`, false);
+    }
+}
 
         // Handle Teacher Login
         async function handleTeacherLogin(event) {
-            event.preventDefault();
-            const userId = document.getElementById('teacherUserId').value;
-            const password = document.getElementById('teacherPassword').value;
-            const rememberMe = document.getElementById('teacherRememberMe').checked;
+    event.preventDefault();
 
-            if (rememberMe) {
-                localStorage.setItem('rememberedTeacher', userId);
-            } else {
-                localStorage.removeItem('rememberedTeacher');
-            }
+    const userId = document.getElementById('teacherUserId').value;
+    const password = document.getElementById('teacherPassword').value;
+    const rememberMe = document.getElementById('teacherRememberMe').checked;
 
-            const user = await checkTeacherCredentials(userId, password);
-            
-            if (user) {
-                sessionStorage.setItem('loggedInUser', JSON.stringify(user.firstName));
-                sessionStorage.setItem('userType', 'faculty');
+    if (rememberMe) {
+        localStorage.setItem('rememberedTeacher', userId);
+    } else {
+        localStorage.removeItem('rememberedTeacher');
+    }
+
+    try {
+        const response = await fetch('http://localhost:5062/api/Teacher/Login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                username: userId,
+                password: password
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // ✅ Save user data in session storage
+            sessionStorage.setItem('loggedInUser', JSON.stringify(result.data.firstName));
+            sessionStorage.setItem('loggedUserID',JSON.stringify(result.data.id))
+            sessionStorage.setItem('userType', 'faculty');
+
+            // ✅ Show success alert
+
+            setTimeout(() => {
                 window.location.href = 'FacDash.html';
-            } else {
-                alert('Invalid credentials!');
-            }
+            }, 1000);
+        } else {
+            // ❌ Show error alert
+            showAlert(result.message || 'Invalid credentials!', false);
         }
+    } catch (error) {
+        showAlert(`Error: ${error.message}`, false);
+    }
+}
+
 
         // Check Student Credentials
         async function checkStudentCredentials(ADNMO, password) {
@@ -179,14 +261,33 @@
             ) || null;
         }
 
-        // Check Teacher Credentials
-        async function checkTeacherCredentials(username, password) {
-            const teachers = JSON.parse(sessionStorage.getItem('teacherData')) || [];
-            return teachers.find(teacher => 
-                teacher.username === username && 
-                teacher.password === password
-            ) || null;
-        }
+        function showAlert(message, isSuccess = false) {
+                const alertElement = document.getElementById('customAlert');
+                const alertMessage = document.getElementById('alertMessage');
+
+                // Set alert content and style
+                alertMessage.textContent = message;
+                alertElement.style.backgroundColor = isSuccess ? '#4CAF50' : '#f44336'; // Green for success, red for error
+                alertElement.classList.remove('slide-out'); // Remove slide-out animation if present
+                alertElement.classList.remove('success'); // Remove success class if present
+
+                if (isSuccess) {
+                    alertElement.classList.add('success'); // Add success class for green background
+                }
+
+                // Display the alert with slide-in animation
+                alertElement.style.display = 'block';
+                alertElement.classList.add('show');
+
+                // Automatically hide the alert after 5 seconds with slide-out animation
+                setTimeout(() => {
+                    alertElement.classList.add('slide-out'); // Add slide-out animation
+                    setTimeout(() => {
+                        alertElement.style.display = 'none'; // Hide after animation completes
+                    }, 500); // Wait for slide-out animation to finish
+                }, 5000); // Display for 5 seconds
+            }
+
     </script>
 </body>
 </html>

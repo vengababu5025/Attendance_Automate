@@ -380,57 +380,64 @@
             transform: translateY(-2px);
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
+
         .button-container {
-    display: flex;
-    justify-content: space-between; /* This will place one button on the left and one on the right */
-    align-items: center; /* Vertically center the buttons */
-    width: 100%; /* Ensure the container takes the full width */
-}
+            display: flex;
+            justify-content: space-between;
+            /* This will place one button on the left and one on the right */
+            align-items: center;
+            /* Vertically center the buttons */
+            width: 100%;
+            /* Ensure the container takes the full width */
+        }
 
-.home-btn {
-    position: relative;
-    display: inline-block;
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-}
+        .home-btn {
+            position: relative;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-.home-btn .tooltip {
-    visibility: hidden;
-    width: 120px;
-    background-color: #555;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%; /* Position the tooltip above the button */
-    left: 50%;
-    margin-left: -60px; /* Center the tooltip */
-    opacity: 0;
-    transition: opacity 0.3s;
-}
+        .home-btn .tooltip {
+            visibility: hidden;
+            width: 120px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            /* Position the tooltip above the button */
+            left: 50%;
+            margin-left: -60px;
+            /* Center the tooltip */
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
 
-.home-btn .tooltip::after {
-    content: "";
-    position: absolute;
-    top: 100%; /* At the bottom of the tooltip */
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
-}
+        .home-btn .tooltip::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            /* At the bottom of the tooltip */
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #555 transparent transparent transparent;
+        }
 
-.home-btn:hover .tooltip {
-    visibility: visible;
-    opacity: 1;
-}
+        .home-btn:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -498,17 +505,13 @@
 
                 <label for="faculty">Faculty Name:</label>
                 <select id="faculty">
-                    <option value="Dr. Smith">Dr. Smith</option>
-                    <option value="Prof. Johnson">Prof. Johnson</option>
-                    <option value="Dr. Brown">Dr. Brown</option>
+                    <!-- Options will be populated dynamically -->
                 </select>
 
                 <label for="subject">Subject:</label>
                 <select id="subject">
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                </select>
+                    <!-- Options will be populated dynamically -->
+                </select>   
 
                 <label for="hour">Hour:</label>
                 <select id="hour">
@@ -561,6 +564,67 @@
     <script>
         let rollNumbersList = [];
 
+
+        document.addEventListener('DOMContentLoaded', function () {
+    // Fetch the logged-in faculty's name from sessionStorage
+    const loggedInFacultyName = JSON.parse(sessionStorage.getItem('loggedInUser'));
+
+    if (!loggedInFacultyName) {
+        alert("Faculty name not found. Please log in again.");
+        window.location.href = "login.html"; // Redirect to login page
+        return;
+    }
+
+    // Populate the Faculty Name dropdown
+    const facultyDropdown = document.getElementById('faculty');
+    facultyDropdown.innerHTML = ''; // Clear existing options
+
+    // Add the logged-in faculty's name as the only option
+    const facultyOption = document.createElement('option');
+    facultyOption.value = loggedInFacultyName; // Use faculty name as value
+    facultyOption.textContent = loggedInFacultyName; // Display faculty name
+    facultyDropdown.appendChild(facultyOption);
+
+    // Fetch the logged-in faculty's ID from sessionStorage
+    const loggedInFacultyId = parseInt(JSON.parse(sessionStorage.getItem('loggedUserID')));
+
+    if (!loggedInFacultyId) {
+        alert("Faculty ID not found. Please log in again.");
+        window.location.href = "login.html";
+        return;
+    }
+
+    // Fetch subjects taught by the logged-in faculty
+    fetch(`http://localhost:5062/api/Teacher/GetSubjectsByFaculty/${loggedInFacultyId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Failed to fetch subjects: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            const subjectDropdown = document.getElementById('subject');
+            subjectDropdown.innerHTML = ''; // Clear existing options
+
+            // Add a default option
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = "Select Subject";
+            subjectDropdown.appendChild(defaultOption);
+
+            // Populate the dropdown with fetched subjects
+            data.forEach(subject => {
+                const option = document.createElement('option');
+                option.value = subject.subjectName; // Use subject name as value
+                option.textContent = subject.subjectName; // Display subject name
+                subjectDropdown.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching subjects:', error);
+            alert('Failed to fetch subjects. Please try again later.');
+        });
+});
         // Sidebar Toggle Function
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -575,80 +639,112 @@
         }
 
         // QR Code Logic
-        let latitude = "";
-        let longitude = "";
+        let lati = "";
+        let longi = "";
 
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    latitude = position.coords.latitude;
-                    longitude = position.coords.longitude;
-                    document.getElementById("location").innerText = `Location: ${latitude}, ${longitude}`;
+                    lati = position.coords.latitude;
+                    longi = position.coords.longitude;
+                    document.getElementById("location").innerText = `Location: ${lati}, ${longi}`;
                 });
             } else {
                 alert("Geolocation is not supported by this browser.");
             }
         }
 
-        function generateQR() {
-            // Retrieve the input values
-            let date = document.getElementById("date").value;
-            let faculty = document.getElementById("faculty").value;
-            let subject = document.getElementById("subject").value;
-            let hour = document.getElementById("hour").value;
-            let location = `${latitude}, ${longitude}`;
+        async function generateQR() {
+    try {
+        // ✅ Retrieve the input values
+        let date = document.getElementById("date").value;
+        let faculty = document.getElementById("faculty").value;
+        let subject = document.getElementById("subject").value;
+        let hour = parseInt(document.getElementById("hour").value);
+        let latitude = lati; // Ensure latitude is available
+        let longitude = longi; // Ensure longitude is available
 
-            // Generate QR data without roll numbers
-            let qrData = `D: ${date}\nF: ${faculty}\nS: ${subject}\nH: ${hour}\nL: ${location}`;
+        // ✅ Generate QR data (for display)
+        let qrData = `D: ${date}\nF: ${faculty}\nS: ${subject}\nH: ${hour}\nL: ${latitude}, ${longitude}`;
 
-            // Clear the existing QR code
-            document.getElementById("qrcode").innerHTML = "";
+        // ✅ Clear existing QR code
+        document.getElementById("qrcode").innerHTML = "";
 
-            // Generate the new QR code
-            let qrcodedata=new QRCode(document.getElementById("qrcode"), {
-                text: qrData,
-                width: 256,
-                height: 256,
-                version: 10 // Specify a higher version if needed
+        // ✅ Generate the QR code
+        new QRCode(document.getElementById("qrcode"), {
+            text: qrData,
+            width: 256,
+            height: 256,
+            version: 10
+        });
+
+        setTimeout(async () => {
+            let qrImage = document.querySelector("#qrcode img").src;
+            let formattedDate = new Date(date).toISOString();
+
+            // ✅ Step 1: Send QR Data to Backend
+            let qrPayload = {
+                Date: formattedDate,
+                Faculty: faculty,
+                Subject: subject,
+                Hour: hour,
+                Latitude: latitude.toString(),
+                Longitude: longitude.toString(),
+                ExpirationTime: new Date(Date.now() + 60 * 60 * 1000).toISOString()
+            };
+
+            const qrResponse = await fetch('http://localhost:5062/api/Attendance/GenerateQR', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(qrPayload)
             });
-            console.log(qrcodedata);
-            setTimeout(() => {
-        // Get the QR code image as base64 (from the canvas element)
-        let qrImage = document.querySelector("#qrcode img").src; // Get the image's src attribute (base64 string)
 
-        // Store the base64 image in a variable or sessionStorage
-        sessionStorage.setItem("qrImage", qrImage);  // Or store it in a variable
-        console.log(qrImage);  // Check the base64 QR code in the console
-    }, 100); 
-            // Retrieve the list of students from session storage
-            let students = JSON.parse(sessionStorage.getItem("students")) || [];
+            if (!qrResponse.ok) throw new Error(`Failed to generate QR: ${qrResponse.statusText}`);
 
-            // Create a new attendance record for each student with the status "Absent"
+            console.log('QR data saved successfully');
+
+            // ✅ Step 2: Fetch students from the backend (instead of session)
+            const studentsResponse = await fetch('http://localhost:5062/api/Student/GetStudents');
+            if (!studentsResponse.ok) throw new Error(`Failed to fetch students: ${studentsResponse.statusText}`);
+
+            const students = await studentsResponse.json();
+
+            // ✅ Step 3: Prepare attendance records
             let newAttendanceRecords = students.map(student => ({
-                date: date,
-                faculty: faculty,
-                subject: subject,
-                hour: hour,
-                location: location,
-                rollNumber: student.rollNumber,
-                name: `${student.firstName} ${student.lastName}`,
-                status: "Absent" // Default status is "Absent"
+                Date: formattedDate,
+                Faculty: faculty,
+                Subject: subject,
+                Hour: hour,
+                Latitude: latitude.toString(),
+                Longitude: longitude.toString(),
+                RollNumber: student.rollNumber,
+                Name: `${student.firstName} ${student.lastName}`,
+                Status: "Absent"
             }));
 
-            // Retrieve the existing attendance records from session storage
-            let attendanceRecords = JSON.parse(sessionStorage.getItem("attendanceRecords")) || [];
+            // ✅ Step 4: Send Attendance Records to Backend
+            const attendanceResponse = await fetch('http://localhost:5062/api/Attendance/SaveAttendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newAttendanceRecords)
+            });
 
-            // Append the new attendance records to the existing ones
-            attendanceRecords = attendanceRecords.concat(newAttendanceRecords);
+            if (!attendanceResponse.ok) throw new Error(`Failed to save attendance: ${attendanceResponse.statusText}`);
 
-            // Update the attendance records in session storage
-            sessionStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
+            console.log('Attendance records saved successfully');
+            alert('QR Code generated and attendance records saved successfully!');
 
-            // Set the expiration time for the QR code data (1 hour from now)
-            const expirationTime = Date.now() + 15000 //* 60 * 1000; // 1 hour from now
-            sessionStorage.setItem("qrData", JSON.stringify({ data: qrData, expires: expirationTime }));
-        }
-        // Function to open the modal
+        }, 100);
+    } catch (error) {
+        console.error('Error:', error);
+        alert(`Error: ${error.message}`);
+    }
+}
+       // Function to open the modal
         function openModal() {
             document.getElementById('attendanceModal').style.display = 'block';
         }
@@ -658,49 +754,6 @@
             document.getElementById('attendanceModal').style.display = 'none';
         }
 
-        // Function to submit attendance and display roll numbers
-        function submitAttendance() {
-            const department = document.getElementById('department').value;
-            const section = document.getElementById('section').value;
-            const year = document.getElementById('year').value; // Assuming you have a year dropdown
-
-            // Fetch student data from session storage
-            const students = JSON.parse(sessionStorage.getItem('students')) || [];
-
-            // Filter students based on department, year, and section
-            const filteredStudents = students.filter(student =>
-                student.department === department &&
-                student.section === section &&
-                student.year === year
-            );
-
-            const gridContainer = document.getElementById('rollNumberGrid');
-            gridContainer.innerHTML = '';
-
-            filteredStudents.forEach(student => {
-                const formattedRollNumber = student.rollNumber;
-                rollNumbersList.push(formattedRollNumber);
-                const gridItem = document.createElement('div');
-                gridItem.className = 'grid-item';
-                gridItem.textContent = formattedRollNumber;
-
-                // Create hidden checkbox
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `roll-${formattedRollNumber}`;
-                checkbox.value = formattedRollNumber;
-                checkbox.style.display = 'none';
-
-                // Add click handler
-                gridItem.addEventListener('click', function () {
-                    checkbox.checked = !checkbox.checked;
-                    this.classList.toggle('selected', checkbox.checked);
-                });
-
-                gridItem.appendChild(checkbox);
-                gridContainer.appendChild(gridItem);
-            });
-        }
 
         // Add year dropdown to the modal content
         document.addEventListener('DOMContentLoaded', function () {

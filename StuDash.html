@@ -866,59 +866,50 @@
     
         // Function to handle scanned QR code data
         async function handleScannedCode(data) {
-            try {
-                console.log("Scanned QR Data:", data);
-    
-                // Extract data from the QR code
-                const qrData = parseQRData(data);
-                if (!qrData || !qrData.latitude || !qrData.longitude) {
-                    console.error("Invalid QR Code format or missing location data.");
-                    showAttendanceResult("Invalid QR Code format.", false);
-                    return;
-                }
-    
-                // Get the logged-in student's roll number from session storage
-                const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
-                if (!loggedInRollNumber) {
-                    console.error("No roll number found in session storage.");
-                    showAttendanceResult("You are not logged in.", false);
-                    return;
-                }
-    
-                // Retrieve student data from localStorage
-                const students = JSON.parse(sessionStorage.getItem('students')) || [];
-                const loggedInStudent = students.find(student => student.rollNumber === loggedInRollNumber);
-                if (!loggedInStudent) {
-                    console.error("Logged-in student not found in records.");
-                    showAttendanceResult("Student not found in records.", false);
-                    return;
-                }
-    
-                // Get user's location
-                const userLocation = await getLocation();
-    
-                // Calculate distance between user's location and QR code location
-                const distance = haversineDistance(
-                    userLocation.latitude,
-                    userLocation.longitude,
-                    qrData.latitude,
-                    qrData.longitude
-                );
-    
-                console.log("Distance:", Math.round(distance), "meters");
-                // Check if the user is within 300 meters
-                if (distance <= 30000) {
-                    console.log("Student is within valid location radius.");
-                    markAttendance(loggedInStudent, qrData);
-                } else {
-                    console.error("Student is outside the valid location radius.");
-                    showAttendanceResult("You are outside the valid attendance area.", false);
-                }
-            } catch (error) {
-                console.error("Error handling QR Code:", error);
-                showAttendanceResult(`Invalid QR Code: ${data}`, false);
-            }
+    try {
+        console.log("Scanned QR Data:", data);
+
+        // Extract data from the QR code
+        const qrData = parseQRData(data);
+        if (!qrData || !qrData.latitude || !qrData.longitude) {
+            console.error("Invalid QR Code format or missing location data.");
+            showAttendanceResult("Invalid QR Code format.", false);
+            return;
         }
+
+        // Get the logged-in student's roll number from session storage
+        const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
+        if (!loggedInRollNumber) {
+            console.error("No roll number found in session storage.");
+            showAttendanceResult("You are not logged in.", false);
+            return;
+        }
+
+        // Get user's location
+        const userLocation = await getLocation();
+
+        // Calculate distance between user's location and QR code location
+        const distance = haversineDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            qrData.latitude,
+            qrData.longitude
+        );
+
+        console.log("Distance:", Math.round(distance), "meters");
+        // Check if the user is within 300 meters
+        if (distance <= 400) {
+            console.log("Student is within valid location radius.");
+            await markAttendance(loggedInRollNumber, qrData); // Call markAttendance
+        } else {
+            console.error("Student is outside the valid location radius.");
+            showAttendanceResult("You are outside the valid attendance area.", false);
+        }
+    } catch (error) {
+        console.error("Error handling QR Code:", error);
+        showAttendanceResult(`Invalid QR Code: ${data}`, false);
+    }
+}
     
         // Function to get user's location
         function getLocation() {
@@ -954,8 +945,8 @@
                 }
             }
             // Extract latitude and longitude from the location field
-            if (qrData['L']) {
-                const [latitude, longitude] = qrData['L'].split(',').map(Number);
+            if (qrData['Location']) {
+                const [latitude, longitude] = qrData['Location'].split(',').map(Number);
                 qrData.latitude = latitude;
                 qrData.longitude = longitude;
             }
@@ -982,42 +973,43 @@
         }
     
         // Function to mark attendance
-        function markAttendance(student, qrData) {
+        async function markAttendance(rollNumber, qrData) {
     try {
-        console.log(student);
-        console.log("QR Data:", qrData);
+        // Prepare the request payload
+        const qrDate = qrData.Date.split("T")[0];
 
-        const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || [];
-        const qrDate = new Date(qrData.D).toISOString().split('T')[0];
-        const { S: subject, H: hour } = qrData;
 
-        const recordIndex = attendanceRecords.  findIndex(record => 
-            record.date === qrDate &&
-            record.rollNumber === student.rollNumber &&
-            record.subject === subject &&
-            record.hour === hour
-        );
+        // Prepare the request payload
+        const payload = {
+            RollNumber: rollNumber,
+            Date: qrDate, // Convert to ISO string
+            Subject: qrData.Subject, // Subject from QR code
+            Hour: parseInt(qrData.Hour) // Convert Hour to integer
+        };
 
-        if (recordIndex !== -1) {
-            if (attendanceRecords[recordIndex].status === "Present") {
-                showAttendanceResult(`Attendance for ${student.firstName} (${student.rollNumber}) has already been posted today.`, false);
-            } else {
-                attendanceRecords[recordIndex].status = "Present";
-                sessionStorage.setItem('attendanceRecords', JSON.stringify(attendanceRecords));
-                console.log("Updated attendance record:", attendanceRecords[recordIndex]);
-                showAttendanceResult(`Attendance for ${student.firstName} (${student.rollNumber}) marked as Present.`, true);
-            }
+        // Call the PostAttendance API
+        const response = await fetch('http://localhost:5062/api/attendance/PostAttendance', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            // Display success message
+            showAttendanceResult(result.message, true);
         } else {
-            showAttendanceResult(`No attendance record found for ${student.firstName} (${student.rollNumber}) on ${qrDate} for ${subject} (Hour ${hour}).`, false);
+            // Display error message
+            showAttendanceResult(result.message || "Failed to mark attendance.", false);
         }
-
-        stopScanner();
     } catch (error) {
         console.error("Error marking attendance:", error);
-        showAttendanceResult("An error occurred while marking attendance. Please try again.", false);
+        showAttendanceResult("An error occurred while marking attendance.", false);
     }
-}
-        // Function to display attendance result
+}    // Function to display attendance result
         function showAttendanceResult(message, isSuccess) {
             const resultElement = document.getElementById("attendanceResult");
             resultElement.innerText = message;
@@ -1066,205 +1058,172 @@
 
 
 // Function to calculate and display attendance summary
-function displayAttendanceSummary(filter = 'all', selectedDate = null) {
-    const attendanceRecords = JSON.parse(sessionStorage.getItem('attendanceRecords')) || 
-                           JSON.parse(sessionStorage.getItem('attendanceStaticRecords')) || [];
-
-    const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
-    const filteredRecords = filterAttendanceRecords(attendanceRecords, loggedInRollNumber, filter, selectedDate);
-
-    // Rest of the function remains the same...
-    // Calculate overall attendance percentage
-    const totalClasses = filteredRecords.length;
-    const presentClasses = filteredRecords.filter(record => record.status === 'Present').length;
-    const overallPercentage = totalClasses > 0 ? ((presentClasses / totalClasses) * 100).toFixed(2) : 0;
-
-    // Display overall percentage
-    document.getElementById('overallPercentage').innerText = `${overallPercentage}% (${presentClasses}/${totalClasses})`;
-
-    // Calculate subject-wise attendance percentage
-    const subjectMap = new Map();
-    filteredRecords.forEach(record => {
-        if (!subjectMap.has(record.subject)) {
-            subjectMap.set(record.subject, { total: 0, present: 0 });
-        }
-        subjectMap.get(record.subject).total += 1;
-        if (record.status === 'Present') {
-            subjectMap.get(record.subject).present += 1;
-        }
-    });
-
-    // Display subject-wise percentage
-    const subjectTableBody = document.querySelector('#subjectTable tbody');
-    subjectTableBody.innerHTML = '';
-    subjectMap.forEach((value, key) => {
-        const percentage = ((value.present / value.total) * 100).toFixed(2);
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${key}</td>
-            <td>${percentage}% (${value.present}/${value.total})</td>
-        `;
-        subjectTableBody.appendChild(row);
-    });
-
-    const subjects = Array.from(subjectMap.keys());
-    const subjectPercentages = subjects.map(subject => {
-        const { total, present } = subjectMap.get(subject);
-        return ((present / total) * 100).toFixed(2);
-    });
-
-    // Render overall attendance chart (bar chart)
-    renderOverallAttendanceChart(overallPercentage);
-
-    // Render subject-wise attendance chart (pie chart)
-    renderSubjectWiseAttendanceChart(subjects, subjectPercentages);
-}
-let overallAttendanceChartInstance = null;
-let subjectWiseAttendanceChartInstance = null;
-
-function renderOverallAttendanceChart(overallPercentage) {
-    const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
-
-    // Destroy existing chart instance if it exists
-    if (overallAttendanceChartInstance) {
-        overallAttendanceChartInstance.destroy();
-    }
-
-    let presentRate = overallPercentage;
-    let absentRate = 100 - overallPercentage;
-
-    overallAttendanceChartInstance = new Chart(ctx, {
-        type: 'pie',
-        data: {
-            labels: ['Present', 'Absent'],
-            datasets: [{
-                data: [presentRate, absentRate],
-                backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
-                borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            return `${context.label}: ${context.raw}%`;
-                        }
-                    }
-                }
+async function displayAttendanceSummary(filter = 'all', selectedDate = null) {
+        try {
+            const loggedInRollNumber = sessionStorage.getItem('RollNumber')?.replace(/"/g, '');
+            if (!loggedInRollNumber) {
+                console.error("No roll number found in session storage.");
+                return;
             }
+
+            // Fetch attendance records from the API
+            const url = `http://localhost:5062/api/attendance/summary?rollNumber=${loggedInRollNumber}&filter=${filter}` +
+                        (selectedDate ? `&date=${selectedDate}` : '');
+            const response = await fetch(url);
+            const result = await response.json();
+
+            if (!response.ok) {
+                console.error("Failed to fetch attendance summary:", result.message);
+                return;
+            }
+
+            const { overallPercentage, subjectWiseSummary } = result;
+
+            // Display overall percentage
+            document.getElementById('overallPercentage').innerText = `${overallPercentage}%`;
+
+            // Display subject-wise percentage in a table
+            const subjectTableBody = document.querySelector('#subjectTable tbody');
+            subjectTableBody.innerHTML = '';
+            subjectWiseSummary.forEach(subject => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${subject.subject}</td>
+                    <td>${subject.percentage}% (${subject.present}/${subject.total})</td>
+                `;
+                subjectTableBody.appendChild(row);
+            });
+
+            // Extract subjects and percentages for the chart
+            const subjects = subjectWiseSummary.map(subject => subject.subject);
+            const subjectPercentages = subjectWiseSummary.map(subject => subject.percentage);
+
+            // Render overall attendance chart (pie chart)
+            renderOverallAttendanceChart(overallPercentage);
+
+            // Render subject-wise attendance chart (bar chart)
+            renderSubjectWiseAttendanceChart(subjects, subjectPercentages);
+        } catch (error) {
+            console.error("Error fetching attendance summary:", error);
         }
-    });
-}
-
-function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
-    const ctx = document.getElementById('subjectWiseAttendanceChart').getContext('2d');
-
-    // Destroy existing chart instance if it exists
-    if (subjectWiseAttendanceChartInstance) {
-        subjectWiseAttendanceChartInstance.destroy();
     }
 
-    // Define an array of different colors for each bar
-    const barColors = [
-        'rgba(255, 99, 132, 0.6)',
-        'rgba(54, 162, 235, 0.6)',
-        'rgba(255, 206, 86, 0.6)',
-        'rgba(75, 192, 192, 0.6)',
-        'rgba(153, 102, 255, 0.6)',
-        'rgba(255, 159, 64, 0.6)'
-    ];
+    // Function to render overall attendance chart (pie chart)
+    let overallAttendanceChartInstance = null;
+    function renderOverallAttendanceChart(overallPercentage) {
+        const ctx = document.getElementById('overallAttendanceChart').getContext('2d');
 
-    // Ensure each subject gets a different color by repeating the color set if needed
-    const backgroundColors = subjects.map((_, index) => barColors[index % barColors.length]);
-    const borderColors = subjects.map((_, index) => barColors[index % barColors.length].replace('0.6', '1')); // Darker border
+        // Destroy existing chart instance if it exists
+        if (overallAttendanceChartInstance) {
+            overallAttendanceChartInstance.destroy();
+        }
 
-    subjectWiseAttendanceChartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: subjects,
-            datasets: [{
-                label: 'Attendance Percentage',
-                data: subjectPercentages,
-                backgroundColor: backgroundColors,
-                borderColor: borderColors,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 100
-                }
+        const presentRate = overallPercentage;
+        const absentRate = 100 - overallPercentage;
+
+        overallAttendanceChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Present', 'Absent'],
+                datasets: [{
+                    data: [presentRate, absentRate],
+                    backgroundColor: ['rgba(75, 192, 192, 0.7)', 'rgba(255, 99, 132, 0.7)'],
+                    borderColor: ['rgba(75, 192, 192, 1)', 'rgba(255, 99, 132, 1)'],
+                    borderWidth: 1
+                }]
             },
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            return `${context.label}: ${context.raw}%`;
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
                         }
                     }
                 }
             }
+        });
+    }
+
+    // Function to render subject-wise attendance chart (bar chart)
+    let subjectWiseAttendanceChartInstance = null;
+    function renderSubjectWiseAttendanceChart(subjects, subjectPercentages) {
+        const ctx = document.getElementById('subjectWiseAttendanceChart').getContext('2d');
+
+        // Destroy existing chart instance if it exists
+        if (subjectWiseAttendanceChartInstance) {
+            subjectWiseAttendanceChartInstance.destroy();
         }
+
+        // Define an array of different colors for each bar
+        const barColors = [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)'
+        ];
+
+        // Ensure each subject gets a different color
+        const backgroundColors = subjects.map((_, index) => barColors[index % barColors.length]);
+        const borderColors = subjects.map((_, index) => barColors[index % barColors.length].replace('0.6', '1'));
+
+        subjectWiseAttendanceChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: subjects,
+                datasets: [{
+                    label: 'Attendance Percentage',
+                    data: subjectPercentages,
+                    backgroundColor: backgroundColors,
+                    borderColor: borderColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return `${context.label}: ${context.raw}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Function to handle filter button clicks
+    function filterAttendance(filter) {
+        displayAttendanceSummary(filter);
+    }
+
+    // Function to filter by date
+    function filterByDate(selectedDate) {
+        displayAttendanceSummary('daily', selectedDate);
+    }
+
+    // Call the function to display the summary when the page loads
+    document.addEventListener("DOMContentLoaded", function () {
+        displayAttendanceSummary('all');
     });
-}// Function to filter attendance records based on the selected filter
-function filterAttendanceRecords(records, rollNumber, filter, selectedDate = null) {
-    const today = new Date().toISOString().split('T')[0];
-    const currentWeek = getWeekNumber(new Date());
-    const currentMonth = new Date().getMonth() + 1;
-
-    return records.filter(record => {
-        if (record.rollNumber !== rollNumber) return false;
-
-        const recordDate = new Date(record.date);
-        const recordWeek = getWeekNumber(recordDate);
-        const recordMonth = recordDate.getMonth() + 1;
-
-        switch (filter) {
-            case 'daily':
-            return selectedDate ? record.date === selectedDate : record.date === today;
-            case 'weekly':
-                return recordWeek === currentWeek && recordDate.getFullYear() === new Date().getFullYear();
-            case 'monthly':
-                return recordMonth === currentMonth && recordDate.getFullYear() === new Date().getFullYear();
-            case 'all':
-            default:
-                return true;
-        }
-    });
-}
-
-function filterByDate(selectedDate) {
-    // Pass the selected date to the displayAttendanceSummary function
-    displayAttendanceSummary('daily', selectedDate);
-}
-// Helper function to get the week number of a date
-function getWeekNumber(date) {
-    const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-    const pastDaysOfYear = (date - firstDayOfYear) / 86400000;
-    return Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-}
-
-// Function to handle filter button clicks
-function filterAttendance(filter) {
-    displayAttendanceSummary(filter);
-}
-
-// Call the function to display the summary when the page loads
-document.addEventListener("DOMContentLoaded", function () {
-    displayAttendanceSummary('all');
-});
 
     </script>
     <script src="https://unpkg.com/jsqr"></script>

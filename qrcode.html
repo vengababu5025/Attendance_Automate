@@ -7,6 +7,7 @@
     <title>Display QR Code</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root {
             --primary: #1b43f3;
@@ -350,6 +351,7 @@
     </div>
 
     <script>
+
         // Sidebar Toggle Function
         function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
@@ -362,65 +364,108 @@
             window.location.href = "login.html";
         }
 
-        // Display QR Code and Start Countdown
-        document.addEventListener('DOMContentLoaded', function () {
-    const qrImage = sessionStorage.getItem('qrImage');
-    const qrData = JSON.parse(sessionStorage.getItem('qrData'));
+        QrDataa=[]
+        document.addEventListener('DOMContentLoaded', 
+        function () {
+            const faculty = sessionStorage.getItem("loggedInUser")?.replace(/"/g, '');
+            fetch(`http://localhost:5062/api/Attendance/GetActiveQR?faculty=${faculty}`)
+                .then(response => response.json())
+                .then(qrData => {
+                    const qrImageContainer = document.getElementById('qrImageContainer');
+                    const msgContainer = document.getElementById('msgCoontainer');
+                    const countdownElement = document.getElementById('countdown');
+                    const expiredMessage = document.getElementById('expiredMessage');
+                    QrDataa=qrData;
+                    if (qrData.isActive) {
+                        // Generate QR code from the data
+                        const qrText = `Date: ${qrData.date}\nFaculty: ${qrData.faculty}\nSubject: ${qrData.subject}\nHour: ${qrData.hour}\nLocation: ${qrData.latitude}, ${qrData.longitude}`;
 
-    const qrImageContainer = document.getElementById('qrImageContainer');
-    const msgContainer = document.getElementById('msgCoontainer');
+                        // Clear any existing QR code
+                        qrImageContainer.innerHTML = '';
 
-    if (qrImage && qrData) {
-        // Display the QR code image
-        qrImageContainer.innerHTML = `<img id="qrImage" src="${qrImage}" alt="QR Code" style="max-width: 100%;">`;
+                        // Generate and display the QR code
+                        new QRCode(qrImageContainer, {
+                            text: qrText,
+                            width: 256,
+                            height: 256,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
 
-        // Calculate the remaining time
-        const expirationTime = qrData.expires;
-        const currentTime = Date.now();
-        const remainingTime = expirationTime - currentTime;
+                        // Calculate the remaining time
+                        const expirationTime = new Date(qrData.expirationTime + 'Z').getTime(); // Append 'Z' if not present
+                        const currentTime = Date.now();
+                        const remainingTime = expirationTime - currentTime;
+                        
+                        console.log(QrDataa);
+                        if (remainingTime > 0) {
+                            // Start the countdown
+                            startCountdown(remainingTime);
+                        } else {
+                            // Display expired message and blur the image
+                            countdownElement.style.display = 'none';
+                            expiredMessage.style.display = 'block';
+                            qrImageContainer.style.filter = 'blur(5px)';
+                        }
+                    } else {
+                        // Display message in place of QR code image
+                        qrImageContainer.innerHTML = `<h2 style="color: red; text-align: center;">No active QR code found. Please generate a new QR...</h2>`;
+                    }
+                })
+                .catch(error => {
+                    qrImageContainer.innerHTML = `<h2 style="color: red; text-align: center;">No active QR code found. Please generate a new QR...</h2>`;
+                    console.error('Error fetching QR data:', error);
+                });
+        });
 
-        if (remainingTime > 0) {
-            // Start the countdown
-            startCountdown(remainingTime);
+        function startCountdown(duration) {
+            const countdownElement = document.getElementById('countdown');
+            const expiredMessage = document.getElementById('expiredMessage');
+            const qrImageContainer = document.getElementById('qrImageContainer');
+
+            let timer = duration;
+            const interval = setInterval(() => {
+                const hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timer % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `Time remaining: ${Math.floor(hours)}h ${Math.floor(minutes)}m ${Math.floor(seconds)}s`;
+
+                if (timer <= 10000) { // 10 seconds remaining
+                    countdownElement.classList.add('blink-red'); // Add the blink-red class
+                }
+
+                if (timer <= 0) {
+                    clearInterval(interval);
+                    countdownElement.style.display = 'none';
+                    expiredMessage.style.display = 'block';
+                    qrImageContainer.style.filter = 'blur(5px)';
+                    disableQRCodeInBackend(QrDataa.id); 
+                } else {
+                    timer -= 1000;
+                }
+            }, 1000);
+        }
+        function disableQRCodeInBackend(qrId) {
+        fetch(`http://localhost:5062/api/Attendance/DisableQR/${qrId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log("QR code disabled successfully.");
         } else {
-            // Display expired message and blur the image
-            document.getElementById('countdown').style.display = 'none';
-            document.getElementById('expiredMessage').style.display = 'block';
-            document.getElementById('qrImage').style.filter = 'blur(5px)';
+            console.error("Failed to disable QR code:", response.statusText);
         }
-    } else {
-        // Display message in place of QR code image
-        qrImageContainer.innerHTML = `<h2 style="color: red; text-align: center;">No QR Code found. Please generate a new QR...</h2>`;
-    }
-});
-
-function startCountdown(duration) {
-    const countdownElement = document.getElementById('countdown');
-    const expiredMessage = document.getElementById('expiredMessage');
-    const qrImage = document.getElementById('qrImage');
-
-    let timer = duration;
-    const interval = setInterval(() => {
-        const hours = Math.floor((timer % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((timer % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timer % (1000 * 60)) / 1000);
-
-        countdownElement.innerHTML = `Time remaining: ${Math.floor(hours)}h ${Math.floor(minutes)}m ${Math.floor(seconds)}s`;
-
-        if (timer <= 10000) { // 10 seconds remaining
-            countdownElement.classList.add('blink-red'); // Add the blink-red class
-        }
-
-        if (timer <= 0) {
-            clearInterval(interval);
-            countdownElement.style.display = 'none';
-            expiredMessage.style.display = 'block';
-            qrImage.style.filter = 'blur(5px)';
-        } else {
-            timer -= 1000;
-        }
-    }, 1000);
-}  </script>
+    })
+    .catch(error => {
+        console.error("Error disabling QR code:", error);
+    });
+}
+  </script>
 </body>
 
 </html>
